@@ -1,0 +1,85 @@
+﻿@model Entity.Category
+
+<div id="specification" class="tab-pane" role="tabpanel">
+    @if (Model.Title == "Elektronik")
+    {
+        <table class="table table-bordered specification-inner_stuff">
+            <tbody>
+                <tr>
+                    <td colspan="2"><strong>Hafıza</strong></td>
+                </tr>
+            </tbody>
+            <tbody>
+                <tr>
+                    <td>Ram</td>
+                    <td>8gb</td>
+                </tr>
+            </tbody>
+            <tbody>
+                <tr>
+                    <td colspan="2"><strong>İşlemci</strong></td>
+                </tr>
+            </tbody>
+            <tbody>
+                <tr>
+                    <td>Çekirdek Sayısı</td>
+                    <td>1</td>
+                </tr>
+            </tbody>
+        </table>
+    }
+    else if (Model.Title == "Giyim")
+    {
+        <table class="table table-bordered specification-inner_stuff">
+            <tbody>
+                <tr>
+                    <td colspan="2"><strong>Ham Madde</strong></td>
+                </tr>
+            </tbody>
+            <tbody>
+                <tr>
+                    <td>Türü
+                    <td>Pamuk</td>
+                </tr>
+            </tbody>
+            <tbody>
+                <tr>
+                    <td colspan="2"><strong>Ölçüleri</strong></td>
+                </tr>
+            </tbody>
+            <tbody>
+                <tr>
+                    <td>En/Boy</td>
+                    <td>30cm,40cm</td>
+                </tr>
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <table class="table table-bordered specification-inner_stuff">
+            <tbody>
+                <tr>
+                    <td colspan="2"><strong>Ham Madde</strong></td>
+                </tr>
+            </tbody>
+            <tbody>
+                <tr>
+                    <td>Türü
+                    <td>Pamuk</td>
+                </tr>
+            </tbody>
+            <tbody>
+                <tr>
+                    <td colspan="2"><strong>Ölçüleri</strong></td>
+                </tr>
+            </tbody>
+            <tbody>
+                <tr>
+                    <td>En/Boy</td>
+                    <td>30cm,40cm</td>
+                </tr>
+            </tbody>
+        </table>
+    }
+</div>

@@ -1,0 +1,238 @@
+﻿@{
+    ViewData["Title"] = "Bloglar";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h6 class="mb-0 text-uppercase">Bloglar</h6>
+<hr />
+<div class="card">
+    <div class="card-header text-white bg-primary bg-gradient">
+        <a href="#" id="btnEkle" class="btn btn-light">Yeni Blog Ekle</a>
+    </div>
+    <div class="card-body">
+        <table id="blogTable" class="table table-bordered table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Blog Adı</th>
+                    <th>Açıklama</th>
+                    <th>Görsel</th>
+                    <th>Oluşturulma</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modalBlog" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" role="dialog" aria-labelledby="modalBlogTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Blog Ekle / Güncelle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="blogId" />
+                <div class="mb-3">
+                    <label class="form-label">Blog Adı</label>
+                    <input type="text" id="blogTitle" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Açıklama</label>
+                    <textarea id="blogDescription" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Görsel</label>
+                    <input type="file" id="blogImageFile" class="form-control" />
+                    <div class="mt-2">
+                        <img id="currentImage" src="" width="80" height="80" style="object-fit:cover; display:none;" />
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Durum</label>
+                    <select class="form-select" id="blogStatus">
+                        <option value="true">Aktif</option>
+                        <option value="false">Pasif</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button type="button" id="btnSave" class="btn btn-primary">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+
+<script>
+    $(document).ready(function () {
+        var table = $('#blogTable').DataTable({
+            ajax: {
+                url: "/Admin/Blog/GetAll",
+                dataSrc: "data"
+            },
+            columns: [
+                {
+                    data: null,
+                    render: function (data, type, row, meta) {
+                        return meta.row + 1;
+                    }
+                },
+                { data: "title" },
+                { data: "description" },
+                {
+                    data: 'imageUrl',
+                    render: d => d
+                        ? `<img src="/images/${d}" style="width:60px;height:60px;object-fit:cover;" />`
+                        : '—'
+                },
+                {
+                    data: "createdDate",
+                    render: function (data) {
+                        if (!data) return "-";
+                        let date = new Date(data);
+                        return date.toLocaleDateString('tr-TR', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                    }
+                },
+                {
+                    data: "isActive",
+                    render: d => d ? "Aktif" : "Pasif"
+                },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        return `
+                            <button class="btn btn-sm btn-info btn-edit"
+                                data-id="${row.id}"
+                                data-title="${row.title}"
+                                data-description="${row.description}"
+                                data-image="${row.imageUrl}"
+                                data-status="${row.isActive}">
+                                Düzenle
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteBlog('${row.id}')">Sil</button>
+                        `;
+                    }
+                }
+            ]
+        });
+
+        // Yeni Ekle
+        $("#btnEkle").click(function () {
+            $("#blogId").val("");
+            $("#blogTitle").val("");
+            $("#blogDescription").val("");
+            $("#blogImageFile").val("");
+            $("#currentImage").hide();
+            $("#blogStatus").val("true");
+            $("#modalBlog").modal("show");
+        });
+
+        // Düzenle
+            $(document).on("click", ".btn-edit", function () {
+        const data = $('#blogTable').DataTable().row($(this).closest('tr')).data();
+
+        if (!data) {
+            Swal.fire('Hata!', 'Veri alınamadı.', 'error');
+            return;
+        }
+
+        $("#blogId").val(data.id || "");
+        $("#blogTitle").val(data.title || "");
+        $("#blogDescription").val(data.description || "");
+        $("#blogStatus").val(data.isActive.toString());
+
+        if (data.imageUrl) {
+            $("#currentImage").attr("src", `/images/${data.imageUrl}`).show();
+        } else {
+            $("#currentImage").hide();
+        }
+
+        $("#modalBlog").modal("show");
+    });
+
+
+        // Kaydet
+        $("#btnSave").click(function () {
+            const id = $("#blogId").val();
+            const title = $("#blogTitle").val();
+            const description = $("#blogDescription").val();
+            const status = $("#blogStatus").val();
+            const imageFile = $("#blogImageFile")[0].files[0];
+
+            if (!title || !description) {
+                Swal.fire('Uyarı!', 'Blog adı ve açıklaması boş bırakılamaz.', 'warning');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("Id", id);
+            formData.append("Title", title);
+            formData.append("Description", description);
+            formData.append("IsActive", status);
+            if (imageFile) {
+                formData.append("ImageFile", imageFile);
+            }
+
+            $.ajax({
+                url: id ? "/Admin/Blog/Update" : "/Admin/Blog/Add",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function () {
+                    $("#modalBlog").modal("hide");
+                    Swal.fire('Başarılı!', id ? 'Blog güncellendi.' : 'Blog eklendi.', 'success');
+                    table.ajax.reload();
+                },
+                error: function (xhr) {
+                    Swal.fire('Hata!', xhr.responseText || 'İşlem başarısız.', 'error');
+                }
+            });
+        });
+    });
+
+    // Silme
+    function deleteBlog(id) {
+        Swal.fire({
+            title: 'Emin misiniz?',
+            text: "Bu blogu silmek istediğinize emin misiniz?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Evet, sil!',
+            cancelButtonText: 'Vazgeç'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "/Admin/Blog/Delete",
+                    type: "POST",
+                    data: { id: id },
+                    success: function () {
+                        $('#blogTable').DataTable().ajax.reload();
+                        Swal.fire('Başarılı!', 'Blog silindi.', 'success');
+                    },
+                    error: function (xhr) {
+                        Swal.fire('Hata!', xhr.responseText || 'Silme işlemi başarısız.', 'error');
+                    }
+                });
+            }
+        });
+    }
+</script>

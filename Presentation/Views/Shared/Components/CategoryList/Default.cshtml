@@ -1,0 +1,18 @@
+﻿@model List<Entity.Category>
+
+<div class="kenne-sidebar_categories category-module">
+    <div class="kenne-categories_title">
+        <h5>Ürün Kategorileri</h5>
+    </div>
+    <div class="sidebar-categories_menu">
+        <ul>
+            <li class="has-sub">
+                @foreach (var item in Model)
+                {
+                    <a href="">@item.Title<i class="ion-ios-plus-empty"></i></a>
+                    <br>
+                }
+            </li>
+        </ul>
+    </div>
+</div>

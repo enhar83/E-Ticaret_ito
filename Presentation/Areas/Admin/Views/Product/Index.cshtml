@@ -1,0 +1,314 @@
+﻿@* Views/Admin/Product/Index.cshtml *@
+@{
+    ViewData["Title"] = "Ürünler";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h6 class="mb-0 text-uppercase">Ürünler</h6>
+<hr />
+<div class="card">
+    <div class="card-header text-white bg-primary">
+        <a href="#" id="btnEkleProduct" class="btn btn-light">Yeni Ürün Ekle</a>
+    </div>
+    <div class="card-body">
+        <table id="productTable" class="table table-bordered table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Başlık</th>
+                    @* <th>Ürün Kodu</th> *@
+                    <th>Kategori</th>
+                    <th>Fiyat</th>
+                    <th>Stok</th>
+                    <th>Durum</th>
+                    <th>Görsel</th>
+                    <th>Oluşturma Tarihi</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+@* Ekle / Düzenle Modal *@
+<div class="modal fade" id="modalProduct" tabindex="-1" aria-labelledby="modalProductTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalProductTitle">Yeni Ürün Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="productId" />
+
+                @* <div class="mb-3">
+                    <label class="form-label">Ürün Kodu</label>
+                    <input type="text" id="productCode" class="form-control" readonly />
+                </div> *@
+                <div class="mb-3">
+                    <label class="form-label">Başlık</label>
+                    <input type="text" id="productTitle" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Fiyat</label>
+                    <input type="number" id="productPrice" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Stok</label>
+                    <input type="number" id="productStock" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Kategori</label>
+                    <select id="productCategory" class="form-select"></select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Açıklama</label>
+                    <textarea id="productDescription" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Ürün Görseli</label>
+                    <input type="file" id="productImageFile" class="form-control" />
+                    <div class="mt-2">
+                        <img id="currentImage" src="" width="80" height="80" style="object-fit:cover; display:none;" />
+                    </div>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input type="checkbox" id="productIsActive" class="form-check-input" checked />
+                    <label class="form-check-label" for="productIsActive">Aktif</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button id="btnSaveProduct" class="btn btn-primary">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Fiyat / Stok Güncelle Modal *@
+<div class="modal fade" id="modalUpdateStock" tabindex="-1" aria-labelledby="modalUpdateStockTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalUpdateStockTitle">Fiyat / Stok Güncelle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="updProductId" />
+                <div class="mb-3">
+                    <label class="form-label">Fiyat</label>
+                    <input type="number" id="updPrice" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Stok</label>
+                    <input type="number" id="updStock" class="form-control" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button id="btnSaveUpdateStock" class="btn btn-warning">Güncelle</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gerekli scriptler (en altta, jQuery önce olacak şekilde sırayla eklenmiş) -->
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- DataTables -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+
+
+<script>
+    $(function () {
+        var table = $('#productTable').DataTable({
+            ajax: { url: '/Admin/Product/GetAll', dataSrc: 'data' },
+            columns: [
+                { data: null, render: (_, __, ___, meta) => meta.row + 1 },
+                { data: 'title' },
+                { data: 'category' },
+                { data: 'price' },
+                { data: 'stock' },
+                { data: 'isActive', render: d => d ? 'Aktif' : 'Pasif' },
+                {
+                    data: 'imageUrl',
+                    render: function (d) {
+                        return d
+                            ? `<img src="/images/${d}" style="width:60px;height:60px;object-fit:cover;" />`
+                            : '—';
+                    }
+                },
+                {
+                    data: 'createdDate',
+                    render: function (d) {
+                        return new Date(d).toLocaleString('tr-TR', {
+                            year: 'numeric', month: 'long', day: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
+                        });
+                    }
+                },
+                {
+                    data: 'id',
+                    render: function (id, type, row) {
+                        return `
+                            <button class="btn btn-sm btn-info btn-edit" data-id="${id}">Düzenle</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteProduct('${id}')">Sil</button>
+                        `;
+                    }
+                }
+            ]
+        });
+
+        function loadCategories(selectedId) {
+            $.get('/Admin/Product/GetAllCategories', function (cats) {
+                var $sel = $('#productCategory').empty()
+                    .append('<option value="">Kategori seçiniz</option>');
+                cats.forEach(function (c) {
+                    $sel.append(`<option value="${c.id}" ${c.id === selectedId ? 'selected' : ''}>${c.title}</option>`);
+                });
+            });
+        }
+
+        $('#btnEkleProduct').click(() => {
+            $('#modalProductTitle').text('Yeni Ürün Ekle');
+            $('#productId').val('');
+            $('#productTitle,#productPrice,#productStock,#productDescription').val('');
+            $('#productIsActive').prop('checked', true);
+            $('#productImageFile').val('');
+            $('#currentImage').hide();
+            loadCategories();
+            $('#modalProduct').modal('show');
+        });
+
+        $(document).on('click', '.btn-edit', function () {
+            var id = $(this).data('id');
+            $.getJSON('/Admin/Product/GetById', { id }, function (res) {
+                if (!res.success) return Swal.fire('Hata!', res.message, 'error');
+                var p = res.data;
+                $('#modalProductTitle').text('Ürün Düzenle');
+                $('#productId').val(p.id);
+                $('#productTitle').val(p.title);
+                $('#productPrice').val(p.price);
+                $('#productStock').val(p.stock);
+                $('#productDescription').val(p.description);
+                $('#productIsActive').prop('checked', p.isActive);
+                if (p.imageUrl) {
+                    $('#currentImage').attr('src', '/images/' + p.imageUrl).show();
+                } else {
+                    $('#currentImage').hide();
+                }
+                loadCategories(p.categoryId);
+                $('#modalProduct').modal('show');
+            });
+        });
+
+        $('#btnSaveProduct').click(() => {
+            var title = $('#productTitle').val().trim(),
+                price = $('#productPrice').val().trim(),
+                stock = $('#productStock').val().trim(),
+                category = $('#productCategory').val(),
+                imgFile = $('#productImageFile')[0].files[0],
+                isEdit = !!$('#productId').val();
+
+            if (!title || !price || !stock || !category || (!isEdit && !imgFile)) {
+                var missing = [];
+                if (!title) missing.push('Başlık');
+                if (!price) missing.push('Fiyat');
+                if (!stock) missing.push('Stok');
+                if (!category) missing.push('Kategori');
+                if (!isEdit && !imgFile) missing.push('Ürün görseli');
+                return Swal.fire('Uyarı!', missing.join(', ') + ' alan(lar)ı zorunlu.', 'warning');
+            }
+
+            var fd = new FormData();
+            var id = $('#productId').val();
+            if (id) fd.append('Id', id);
+            fd.append('Title', title);
+            fd.append('Price', price);
+            fd.append('Stock', stock);
+            fd.append('Description', $('#productDescription').val());
+            fd.append('CategoryId', category);
+            fd.append('IsActive', $('#productIsActive').is(':checked'));
+            if (imgFile) fd.append('imageFile', imgFile);
+
+            var url = id ? '/Admin/Product/Edit' : '/Admin/Product/Add';
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: fd,
+                contentType: false,
+                processData: false
+            })
+                .done(res => {
+                    var ok = id ? res.success : true;
+                    if (ok) {
+                        $('#modalProduct').modal('hide');
+                        Swal.fire('Başarılı!', id ? 'Ürün güncellendi.' : 'Ürün eklendi.', 'success');
+                        table.ajax.reload();
+                    } else {
+                        Swal.fire('Hata!', res.message || 'İşlem başarısız.', 'error');
+                    }
+                })
+                .fail(xhr => Swal.fire('Hata!', xhr.responseText || 'İşlem başarısız.', 'error'));
+        });
+
+        $(document).on('click', '.btn-update-stock', function () {
+            $('#updProductId').val(this.dataset.id);
+            $('#updPrice').val(this.dataset.price);
+            $('#updStock').val(this.dataset.stock);
+            $('#modalUpdateStock').modal('show');
+        });
+
+        $('#btnSaveUpdateStock').click(function () {
+            var id = $('#updProductId').val(),
+                price = $('#updPrice').val(),
+                stock = $('#updStock').val();
+
+            if (!price && !stock) {
+                return Swal.fire('Uyarı!', 'Lütfen fiyat veya stok değerlerinden en az birini girin.', 'warning');
+            }
+
+            var data = { id: id };
+            if (price) data.price = price;
+            if (stock) data.stock = stock;
+
+            $.post('/Admin/Product/UpdatePriceStock', data)
+                .done(res => {
+                    if (res.success) {
+                        $('#modalUpdateStock').modal('hide');
+                        Swal.fire('Başarılı!', 'Güncelleme başarılı.', 'success');
+                        table.ajax.reload();
+                    } else {
+                        Swal.fire('Hata!', res.message || 'Güncelleme başarısız.', 'error');
+                    }
+                })
+                .fail(xhr => Swal.fire('Hata!', xhr.responseText || 'Güncelleme başarısız.', 'error'));
+        });
+
+        window.deleteProduct = function (id) {
+            Swal.fire({
+                title: 'Emin misiniz?',
+                text: "Silmek istediğinize emin misiniz?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Evet, sil!',
+                cancelButtonText: 'Vazgeç'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    $.post('/Admin/Product/Delete', { id })
+                        .done(() => {
+                            Swal.fire('Silindi!', 'Başarıyla silindi.', 'success');
+                            table.ajax.reload();
+                        })
+                        .fail(xhr => Swal.fire('Hata!', xhr.responseText || 'Silme başarısız.', 'error'));
+                }
+            });
+        };
+    });
+</script>
