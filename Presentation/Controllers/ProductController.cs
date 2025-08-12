@@ -12,7 +12,7 @@ namespace Presentation.Controllers
             _db = db;
         }
 
-        public IActionResult Index(string sortOrder)
+        public IActionResult Index()
         {
             var products = _db.Products.GetAll().ToList();
 
@@ -23,6 +23,11 @@ namespace Presentation.Controllers
         {
             var product = _db.Products.GetById(id);
             return View(product);
+        }
+
+        public IActionResult Compare()
+        {
+            return View();
         }
     }
 }

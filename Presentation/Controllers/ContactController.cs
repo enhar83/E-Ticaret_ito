@@ -16,21 +16,7 @@ namespace Presentation.Controllers
         public IActionResult Index()
         {
             var contact = _db.Contacts.GetFirstOrDefault(x=>true);
-            return View();
-        }
-        [HttpGet]
-        public IActionResult Add()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult Add(Contact contact)
-        {
-            _db.Contacts.Add(contact);
-            _db.Save();
-
-            return Ok();
+            return View(contact);
         }
     }
 }

@@ -9,7 +9,7 @@
 <div>
     <div class="card">
         <div class="card-header text-white bg-primary bg-gradient">
-            <a href="#" id="btnEkle" class="btn btn-info ms-2">Yeni İletişim Bilgisi Ekle</a>
+            <a href="#" id="btnEkleContact" class="btn btn-info ms-2">Yeni İletişim Bilgisi Ekle</a>
         </div>
         <div class="card-body">
             <table id="contactTable" class="table table-bordered table-striped" style="width:100%">
@@ -30,32 +30,30 @@
     </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="modalContact" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" role="dialog"
-     aria-labelledby="modalContactTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+<div class="modal fade" id="modalContact" tabindex="-1" aria-labelledby="modalContactTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalContactTitle">Yeni İletişim Bilgisi Ekle</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="contactId" />
                 <div class="mb-3">
-                    <label for="contactTitle" class="form-label">Şirket Adı</label>
-                    <input type="text" id="contactTitle" class="form-control" placeholder="Şirket adı girin..." />
+                    <label class="form-label">Şirket Adı</label>
+                    <input type="text" id="contactTitle" class="form-control" />
                 </div>
                 <div class="mb-3">
-                    <label for="address" class="form-label">Adres</label>
-                    <input type="text" id="address" class="form-control" placeholder="Adres girin..." />
+                    <label class="form-label">Adres</label>
+                    <input type="text" id="address" class="form-control" />
                 </div>
                 <div class="mb-3">
-                    <label for="phoneNumber" class="form-label">Telefon Numarası</label>
-                    <input type="text" id="phoneNumber" class="form-control" placeholder="Telefon numarası girin..." />
+                    <label class="form-label">Telefon Numarası</label>
+                    <input type="text" id="phoneNumber" class="form-control" />
                 </div>
                 <div class="mb-3">
-                    <label for="email" class="form-label">Mail Adresi</label>
-                    <input type="email" id="email" class="form-control" placeholder="Mail adresi girin..." />
+                    <label class="form-label">Mail Adresi</label>
+                    <input type="email" id="email" class="form-control" />
                 </div>
                 <div class="form-check mb-3">
                     <input type="checkbox" id="contactIsActive" class="form-check-input" checked />
@@ -63,169 +61,144 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-                <button type="button" id="btnSave" class="btn btn-primary">Kaydet</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button id="btnSaveContact" class="btn btn-primary">Kaydet</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Gerekli script ve css dosyaları -->
-<link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <script>
-    $(document).ready(function () {
-
-        // DataTable kurulumu
+    $(function () {
         var table = $('#contactTable').DataTable({
-            ajax: {
-                url: "/Admin/Contact/GetAll",
-                dataSrc: "data"  // Backend JSON'de data property'sini kullan
-            },
+            ajax: { url: '/Admin/Contact/GetAll', dataSrc: 'data' },
             columns: [
+                { data: null, render: (_, __, ___, meta) => meta.row + 1 },
+                { data: 'title' },
+                { data: 'address' },
+                { data: 'phoneNumber' },
+                { data: 'email' },
                 {
-                    data: null,
-                    render: function (data, type, row, meta) {
-                        return meta.row + 1; // Satır numarası
+                    data: 'createdDate',
+                    render: function (d) {
+                        return d
+                            ? new Date(d).toLocaleString('tr-TR', {
+                                year: 'numeric', month: 'long', day: 'numeric',
+                                hour: '2-digit', minute: '2-digit'
+                              })
+                            : '-';
                     }
                 },
-                { data: "title" },
-                { data: "address" },
-                { data: "phoneNumber" },
-                { data: "email" },
+                { data: 'isActive', render: d => d ? 'Aktif' : 'Pasif' },
                 {
-                    data: "createdDate",
-                    render: function (data) {
-                        if (!data) return "-";
-                        let date = new Date(data);
-                        return date.toLocaleDateString('tr-TR', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        });
-                    }
-                },
-                {
-                    data: "isActive",
-                    render: function (data) {
-                        return data ? "Aktif" : "Pasif";
-                    }
-                },
-                {
-                    data: "id",
+                    data: 'id',
                     render: function (id) {
                         return `
                             <button class="btn btn-sm btn-info btn-edit" data-id="${id}">Düzenle</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteContact('${id}')">Sil</button>`;
+                            <button class="btn btn-sm btn-danger" onclick="deleteContact('${id}')">Sil</button>
+                        `;
                     }
                 }
             ]
         });
 
-        // Yeni kayıt eklemek için modal açma
-        $("#btnEkle").click(function () {
-            $("#contactId").val('');
-            $("#contactTitle").val('');
-            $("#address").val('');
-            $("#phoneNumber").val('');
-            $("#email").val('');
-            $("#contactIsActive").prop('checked', true);
-            $("#modalContactTitle").text('Yeni İletişim Bilgisi Ekle');
-            $("#modalContact").modal("show");
+        $('#btnEkleContact').click(() => {
+            $('#modalContactTitle').text('Yeni İletişim Bilgisi Ekle');
+            $('#contactId').val('');
+            $('#contactTitle,#address,#phoneNumber,#email').val('');
+            $('#contactIsActive').prop('checked', true);
+            $('#modalContact').modal('show');
         });
 
-        // Kaydetme işlemi: ekleme veya güncelleme
-        $("#btnSave").click(function () {
-            var id = $('#contactId').val();
-            var title = $("#contactTitle").val().trim();
-            var address = $("#address").val().trim();
-            var phoneNumber = $("#phoneNumber").val().trim();
-            var email = $("#email").val().trim();
-            var isActive = $("#contactIsActive").is(':checked');
+        $(document).on('click', '.btn-edit', function () {
+            var id = $(this).data('id');
+            $.getJSON('/Admin/Contact/GetById', { id }, function (res) {
+                if (!res.success) return Swal.fire('Hata!', res.message, 'error');
+                var c = res.data;
+                $('#modalContactTitle').text('İletişim Bilgisi Düzenle');
+                $('#contactId').val(c.id);
+                $('#contactTitle').val(c.title);
+                $('#address').val(c.address);
+                $('#phoneNumber').val(c.phoneNumber);
+                $('#email').val(c.email);
+                $('#contactIsActive').prop('checked', c.isActive);
+                $('#modalContact').modal('show');
+            });
+        });
+
+        $('#btnSaveContact').click(() => {
+            var title = $('#contactTitle').val().trim(),
+                address = $('#address').val().trim(),
+                phoneNumber = $('#phoneNumber').val().trim(),
+                email = $('#email').val().trim(),
+                id = $('#contactId').val(),
+                isEdit = !!id;
 
             if (!title || !address || !phoneNumber || !email) {
-                Swal.fire('Uyarı!', 'Lütfen tüm alanları doldurun.', 'warning');
-                return;
+                var missing = [];
+                if (!title) missing.push('Şirket Adı');
+                if (!address) missing.push('Adres');
+                if (!phoneNumber) missing.push('Telefon Numarası');
+                if (!email) missing.push('Mail Adresi');
+                return Swal.fire('Uyarı!', missing.join(', ') + ' alan(lar)ı zorunlu.', 'warning');
             }
 
-            var data = {
-                Id: id,
-                Title: title,
-                Address: address,
-                PhoneNumber: phoneNumber,
-                Email: email,
-                IsActive: isActive
-            };
+            var fd = new FormData();
+            if (id) fd.append('Id', id);
+            fd.append('Title', title);
+            fd.append('Address', address);
+            fd.append('PhoneNumber', phoneNumber);
+            fd.append('Email', email);
+            fd.append('IsActive', $('#contactIsActive').is(':checked'));
 
-            var url = id ? "/Admin/Contact/Edit" : "/Admin/Contact/Add";
+            var url = isEdit ? '/Admin/Contact/Edit' : '/Admin/Contact/Add';
 
             $.ajax({
                 url: url,
-                type: "POST",
-                data: data,
-                success: function () {
-                    $("#modalContact").modal("hide");
-                    Swal.fire('Başarılı!', id ? 'İletişim bilgisi güncellendi.' : 'İletişim bilgisi eklendi.', 'success');
+                type: 'POST',
+                data: fd,
+                contentType: false,
+                processData: false
+            })
+            .done(res => {
+                if (res.success) {
+                    $('#modalContact').modal('hide');
+                    Swal.fire('Başarılı!', isEdit ? 'İletişim bilgisi güncellendi.' : 'İletişim bilgisi eklendi.', 'success');
                     table.ajax.reload();
-                },
-                error: function (xhr) {
-                    Swal.fire('Hata!', xhr.responseText || 'İşlem başarısız oldu.', 'error');
+                } else {
+                    Swal.fire('Hata!', res.message || 'İşlem başarısız.', 'error');
                 }
-            });
+            })
+            .fail(xhr => Swal.fire('Hata!', xhr.responseText || 'İşlem başarısız.', 'error'));
         });
 
-        // Düzenleme butonuna tıklanınca modal açılır ve veriler doldurulur
-        $(document).on('click', '.btn-edit', function () {
-            var id = $(this).data('id');
-            $.getJSON("/Admin/Contact/GetById", { id: id }, function (res) {
-                if (!res.success) {
-                    Swal.fire('Hata!', res.message || 'Veri alınamadı.', 'error');
-                    return;
+        window.deleteContact = function (id) {
+            Swal.fire({
+                title: 'Emin misiniz?',
+                text: "Silmek istediğinize emin misiniz?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Evet, sil!',
+                cancelButtonText: 'Vazgeç'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    $.post('/Admin/Contact/Delete', { id })
+                        .done(res => {
+                            if (res.success) {
+                                Swal.fire('Silindi!', 'Başarıyla silindi.', 'success');
+                                table.ajax.reload();
+                            } else {
+                                Swal.fire('Hata!', res.message || 'Silme başarısız.', 'error');
+                            }
+                        })
+                        .fail(xhr => Swal.fire('Hata!', xhr.responseText || 'Silme başarısız.', 'error'));
                 }
-                var c = res.data;
-                $("#modalContactTitle").text("İletişim Bilgisi Düzenle");
-                $("#contactId").val(c.id);
-                $("#contactTitle").val(c.title);
-                $("#address").val(c.address);
-                $("#phoneNumber").val(c.phoneNumber);
-                $("#email").val(c.email);
-                $("#contactIsActive").prop('checked', c.isActive);
-                $("#modalContact").modal("show");
             });
-        });
+        };
     });
-
-    // Silme fonksiyonu
-    function deleteContact(id) {
-        Swal.fire({
-            title: 'Emin misiniz?',
-            text: "Bu iletişim bilgisini silmek istediğinize emin misiniz?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Evet, sil!',
-            cancelButtonText: 'Vazgeç'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: "/Admin/Contact/Delete",
-                    type: "POST",
-                    data: { id: id },
-                    success: function () {
-                        $('#contactTable').DataTable().ajax.reload();
-                        Swal.fire('Başarılı!', 'İletişim bilgisi silindi.', 'success');
-                    },
-                    error: function (xhr) {
-                        Swal.fire('Hata!', xhr.responseText || 'Silme işlemi başarısız oldu.', 'error');
-                    }
-                });
-            }
-        });
-    }
 </script>

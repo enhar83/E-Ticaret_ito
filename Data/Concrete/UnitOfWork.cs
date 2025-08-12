@@ -27,6 +27,7 @@ namespace Data.Concrete
             Blogs = new Repository<Blog>(_db);
             Products = new Repository<Product>(_db);
             Categories = new Repository<Category>(_db);
+            Contacts = new Repository<Contact>(_db);
 
         }
         public void Save()

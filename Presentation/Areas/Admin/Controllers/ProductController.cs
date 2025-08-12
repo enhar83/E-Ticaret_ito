@@ -36,7 +36,7 @@ namespace Presentation.Areas.Admin.Controllers
                     p.ProductCode,
                     Category = p.Category.Title,
                     p.IsActive,
-                    CreatedDate = p.CreatedDate.ToString("yy-mm-dd"),
+                    CreatedDate = p.CreatedDate.ToString("yy-MM-dd"),
                 });
             return Json(new {data=result});
         }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class ContactController : Controller
     {
         private readonly IUnitOfWork _db;
@@ -13,7 +14,6 @@ namespace Presentation.Areas.Admin.Controllers
             _db = db;
         }
 
-        [Area("Admin")]
         public IActionResult Index()
         {
             return View();
@@ -21,7 +21,19 @@ namespace Presentation.Areas.Admin.Controllers
 
         public IActionResult GetAll()
         {
-            return Json(new { data = _db.Contacts.GetAll().ToList() });
+            var contacts = _db.Contacts.GetAll().ToList();
+            var result = contacts.Select(
+                c => new
+                {
+                    c.Id,
+                    c.Title,
+                    c.Email,
+                    c.Address,
+                    c.PhoneNumber,
+                    c.IsActive,
+                    CreatedDate = c.CreatedDate.ToString("yy-MM-dd"),
+                });
+            return Json(new { data = result });
         }
 
         public IActionResult GetById(Guid id)
@@ -44,7 +56,8 @@ namespace Presentation.Areas.Admin.Controllers
                 contact.Title,
                 contact.PhoneNumber,
                 contact.Email,
-                contact.Address        
+                contact.Address,
+                contact.IsActive
             };
 
             return Json(new { success = true, data = dto });
@@ -59,6 +72,9 @@ namespace Presentation.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Add(Contact contact)
         {
+            contact.CreatedDate = DateTime.Now;
+            contact.UpdatedDate = DateTime.Now;
+
             _db.Contacts.Add(contact);
             _db.Save();
             return Ok();
@@ -82,8 +98,12 @@ namespace Presentation.Areas.Admin.Controllers
                 return Json(new { success = false, message = "İletişim bilgisi bulunamadı." });
 
             contact.Title = updatedContact.Title;
-            contact.UpdatedDate = DateTime.Now;
+            contact.Email = updatedContact.Email;
+            contact.Address = updatedContact.Address;
+            contact.PhoneNumber = updatedContact.PhoneNumber;
             contact.IsActive = updatedContact.IsActive;
+            contact.UpdatedDate = DateTime.Now;
+
 
             _db.Contacts.Update(contact);
             _db.Save();
