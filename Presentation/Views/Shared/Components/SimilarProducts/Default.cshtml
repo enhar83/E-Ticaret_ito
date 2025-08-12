@@ -1,0 +1,119 @@
+﻿@model List<Entity.Product>
+
+<div class="product-area pb-90">
+    <div class="container">
+        <div class="row align-items-center mb-3">
+            <div class="col-lg-6">
+                <div class="section-title">
+                    <h3>Benzer Ürünler</h3>
+                </div>
+            </div>
+            <div class="col-lg-6 text-end">
+                <!-- Oklar burada, similarproduct slider için özel -->
+                <div class="similarproduct-arrow"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="kenne-element-carousel similarproduct slider-nav"
+                     data-slick-options='{
+                        "slidesToShow": 4,
+                        "slidesToScroll": 1,
+                        "infinite": true,
+                        "arrows": true,
+                        "dots": false,
+                        "spaceBetween": 30,
+                        "appendArrows": ".similarproduct-arrow",
+                        "autoplay": false
+                     }'
+                     data-slick-responsive='[
+                        {"breakpoint":992, "settings": {"slidesToShow": 3}},
+                        {"breakpoint":768, "settings": {"slidesToShow": 2}},
+                        {"breakpoint":575, "settings": {"slidesToShow": 1}}
+                     ]'>
+                    @foreach (var item in Model)
+                    {
+                        <div class="product-item">
+                            <div class="single-product">
+                                <div class="product-img">
+                                    <a href="/Product/ProductDetails/@item.Id">
+                                        <img class="primary-img" src="~/images/@item.ImageUrl" alt="@item.Title" />
+                                        <img class="secondary-img" src="~/images/@item.ImageUrl" alt="@item.Title" />
+                                    </a>
+                                    <span class="sticker-2">Bunu da beğenebilirsin.</span>
+                                    <div class="add-actions">
+                                        <ul>
+                                            <li class="quick-view-btn" data-bs-toggle="modal" data-bs-target="#exampleModalCenter">
+                                                <a href="javascript:void(0)" data-bs-toggle="tooltip" data-placement="right" title="Quick View">
+                                                    <i class="ion-ios-search"></i>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="wishlist.html" data-bs-toggle="tooltip" data-placement="right" title="Favorilere Ekle"><i class="ion-ios-heart-outline"></i></a>
+                                            </li>
+                                            <li>
+                                                <a href="/Product/Compare/@item.Id" data-bs-toggle="tooltip" data-placement="right" title="Kıyaslama"><i class="ion-ios-reload"></i></a>
+                                            </li>
+                                            <li>
+                                                <a href="cart.html" data-bs-toggle="tooltip" data-placement="right" title="Sepete Ekle"><i class="ion-bag"></i></a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="product-content">
+                                    <div class="product-desc_info">
+                                        <h3 class="product-name"><a href="/Product/ProductDetails/@item.Id">@item.Title</a></h3>
+                                        <div class="price-box">
+                                            <span class="new-price">@item.Price.ToString("C")</span>
+                                        </div>
+                                        <div class="rating-box">
+                                            <ul>
+                                                <li><i class="ion-ios-star"></i></li>
+                                                <li><i class="ion-ios-star"></i></li>
+                                                <li><i class="ion-ios-star"></i></li>
+                                                <li class="silver-color"><i class="ion-ios-star-half"></i></li>
+                                                <li class="silver-color"><i class="ion-ios-star-outline"></i></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slick Slider CSS ve JS -->
+<link rel="stylesheet" href="~/lib/slick/slick.css" />
+<link rel="stylesheet" href="~/lib/slick/slick-theme.css" />
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/slick/slick.min.js"></script>
+
+<style>
+    .similarproduct-arrow {
+        display: flex;
+        gap: 15px;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+        .similarproduct-arrow button {
+            background: transparent;
+            border: none;
+            font-size: 24px;
+            color: #555;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 50%; /* Tam yuvarlak */
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+            .similarproduct-arrow button:hover {
+                background-color: #8B4513; /* Kahverengi yuvarlak arka plan */
+                color: #fff; /* Beyaz ok ikonu */
+            }
+
+</style>
