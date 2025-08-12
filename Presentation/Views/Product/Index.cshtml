@@ -178,7 +178,7 @@
                                                             <a href="wishlist.html" title="İstek Listesine Ekle"><i class="ion-ios-heart-outline"></i></a>
                                                         </li>
                                                         <li>
-                                                            <a href="/Product/Compare" title="Kıyaslama"><i class="ion-ios-reload"></i></a>
+                                                            <a href="/Product/Compare/@item.Id" title="Karşılatır"><i class="ion-ios-reload"></i></a>
                                                         </li>
                                                         <li>
                                                             <a href="cart.html" title="Sepete Ekle"><i class="ion-bag"></i></a>
@@ -237,7 +237,36 @@
     </div>
 </body>
 
+<style>
+    .product-img {
+        width: 100%;
+        height: 250px; 
+        overflow: hidden; 
+        position: relative; 
+    }
 
+        .product-img img.primary-img,
+        .product-img img.secondary-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block; 
+            transition: transform 0.3s ease; 
+        }
+
+            .product-img img.primary-img:hover,
+            .product-img img.secondary-img:hover {
+                transform: scale(1.05); 
+                position: relative; 
+                z-index: 2;
+            }
+
+    .product-item .badge {
+        position: relative; 
+        z-index: 5; 
+    }
+
+</style>
 
 
 

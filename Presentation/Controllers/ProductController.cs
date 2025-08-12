@@ -1,5 +1,7 @@
 ﻿using Data.Abstract;
+using Entity;
 using Microsoft.AspNetCore.Mvc;
+using Presentation.Models;
 
 namespace Presentation.Controllers
 {
@@ -25,9 +27,34 @@ namespace Presentation.Controllers
             return View(product);
         }
 
-        public IActionResult Compare()
+        public IActionResult Compare(Guid id, Guid? comparedProductId)
         {
-            return View();
+            var selectedProduct = _db.Products.GetAll(p => p.Category).FirstOrDefault(p => p.Id == id);
+            if (selectedProduct == null)
+            {
+                return NotFound();
+            }
+
+            var selectedCategoryProducts = _db.Products.GetAll(p => p.Category)
+                .Where(p => p.CategoryId == selectedProduct.CategoryId && p.Id != selectedProduct.Id)
+                .ToList();
+
+            Product? comparedProduct = null;
+            if (comparedProductId.HasValue)
+            {
+                comparedProduct = selectedCategoryProducts.FirstOrDefault(p => p.Id == comparedProductId.Value);
+            }
+
+            var compareViewModel = new CompareViewModel
+            {
+                SelectedProduct = selectedProduct,
+                SelectedCategoryProducts = selectedCategoryProducts,
+                ComparedProduct = comparedProduct
+            };
+
+            return View(compareViewModel);
         }
+
+
     }
 }
