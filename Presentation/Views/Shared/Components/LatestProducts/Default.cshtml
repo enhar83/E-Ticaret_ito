@@ -1,0 +1,22 @@
+﻿@model List<Entity.Product>
+
+<div class="kenne-sidebar_categories list-product_area">
+    <div class="kenne-categories_title">
+        <h5>Son Eklenen Ürünler</h5>
+    </div>
+
+    <div class="product-item">
+        @foreach (var item in Model)
+        {
+            <div class="single-product" style="margin-bottom:8px; padding:5px;">
+                <a href="/Product/ProductDetails/@item.Id">
+                    <img class="primary-img" src="~/images/@item.ImageUrl" alt="@item.Title" style="max-width:100%;">
+                </a>
+                <h3 class="product-name" style="margin:4px 0; font-size:14px;">
+                    <a href="/Product/ProductDetails/@item.Id">@item.Title</a>
+                </h3>
+                <span class="new-price" style="font-size:13px;">@item.Price</span>
+            </div>
+        }
+    </div>
+</div>

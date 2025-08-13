@@ -1,6 +1,8 @@
 ﻿using Data.Abstract;
 using Entity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
 using Presentation.Models;
 
 namespace Presentation.Controllers
@@ -17,6 +19,7 @@ namespace Presentation.Controllers
         public IActionResult Index()
         {
             var products = _db.Products.GetAll().ToList();
+            ViewBag.totalCount = products.Count;
 
             return View(products);
         }
@@ -55,6 +58,15 @@ namespace Presentation.Controllers
             return View(compareViewModel);
         }
 
+        public IActionResult FilterPrice(decimal minPrice, decimal maxPrice)
+        {
+            var filteredProducts = _db.Products.GetAll()
+                .Where(p => p.Price >= minPrice && p.Price <= maxPrice)
+                .OrderByDescending(p => p.Price)
+                .ToList();
 
+            ViewBag.FilteredCount = filteredProducts.Count;
+            return View("Index", filteredProducts);
+        }
     }
 }

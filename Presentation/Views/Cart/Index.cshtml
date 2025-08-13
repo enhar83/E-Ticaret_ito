@@ -1,0 +1,55 @@
+﻿@model List<CartViewModel>
+
+@{
+    ViewData["Title"] = "Shopping Cart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    decimal subtotal = Model?.Sum(x => x.Price * x.Quantity) ?? 0;
+}
+
+<div class="offcanvas-minicart_wrapper" id="miniCart">
+    <div class="offcanvas-menu-inner">
+        <a href="#" class="btn-close"><i class="ion-android-close"></i></a>
+        <div class="minicart-content">
+            <div class="minicart-heading">
+                <h4>Shopping Cart</h4>
+            </div>
+            <ul class="minicart-list">
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <li class="minicart-product">
+                            <a class="product-item_remove" asp-action="RemoveFromCart" asp-route-productId="@item.ProductId">
+                                <i class="ion-android-close"></i>
+                            </a>
+                            <div class="product-item_img">
+                                <img src="~/images/@item.ImageUrl" alt="@item.Title">
+                            </div>
+                            <div class="product-item_content">
+                                <a class="product-item_title" href="/Product/ProductDetails/@item.ProductId">@item.Title</a>
+                                <span class="product-item_quantity">@item.Quantity x $@item.Price.ToString("0.00")</span>
+                            </div>
+                        </li>
+                    }
+                }
+                else
+                {
+                    <li class="minicart-product">
+                        <p>Sepetiniz boş.</p>
+                    </li>
+                }
+            </ul>
+        </div>
+        <div class="minicart-item_total">
+            <span>Subtotal</span>
+            <span class="ammount">$@subtotal.ToString("0.00")</span>
+        </div>
+        <div class="minicart-btn_area">
+            <a href="/Cart/Index" class="kenne-btn kenne-btn_fullwidth">Minicart</a>
+        </div>
+        <div class="minicart-btn_area">
+            <a href="/Checkout/Index" class="kenne-btn kenne-btn_fullwidth">Checkout</a>
+        </div>
+    </div>
+</div>
