@@ -1,10 +1,9 @@
-﻿@model List<CartViewModel>
+﻿@using Presentation.Models.CartViewModels
+@model CartViewModel
 
 @{
     ViewData["Title"] = "Shopping Cart";
     Layout = "~/Views/Shared/_Layout.cshtml";
-
-    decimal subtotal = Model?.Sum(x => x.Price * x.Quantity) ?? 0;
 }
 
 <div class="offcanvas-minicart_wrapper" id="miniCart">
@@ -15,9 +14,9 @@
                 <h4>Shopping Cart</h4>
             </div>
             <ul class="minicart-list">
-                @if (Model != null && Model.Any())
+                @if (Model != null && Model.Items.Any())
                 {
-                    foreach (var item in Model)
+                    foreach (var item in Model.Items)
                     {
                         <li class="minicart-product">
                             <a class="product-item_remove" asp-action="RemoveFromCart" asp-route-productId="@item.ProductId">
@@ -42,8 +41,8 @@
             </ul>
         </div>
         <div class="minicart-item_total">
-            <span>Subtotal</span>
-            <span class="ammount">$@subtotal.ToString("0.00")</span>
+            <span>Sepet Toplamı</span>
+            <span class="ammount" id="cartSubtotal">$@Model?.Items.Sum(x => x.TotalPrice).ToString("0.00")</span>
         </div>
         <div class="minicart-btn_area">
             <a href="/Cart/Index" class="kenne-btn kenne-btn_fullwidth">Minicart</a>
@@ -53,3 +52,75 @@
         </div>
     </div>
 </div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+
+            // Ürün silme
+            $('.product-item_remove').click(function(e){
+                e.preventDefault();
+                var productId = $(this).data('productid');
+
+                $.ajax({
+                    url: '/Cart/Remove',
+                    type: 'POST',
+                    data: {
+                        productId: productId,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response){
+                        if(response.success){
+                            alert(response.message); 
+                            updateCartUI(response);
+                        } else {
+                            alert(response.message);
+                        }
+                    }
+                });
+            });
+
+            // Miktar güncelleme
+            $('.item-quantity').change(function(){
+                var productId = $(this).data('productid');
+                var quantity = $(this).val();
+
+                $.ajax({
+                    url: '/Cart/UpdateQuantity',
+                    type: 'POST',
+                    data: {
+                        productId: productId,
+                        quantity: quantity,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response){
+                        if(response.success){
+                            alert(response.message);
+                            updateCartUI(response);
+                        } else {
+                            alert(response.message);
+                        }
+                    }
+                });
+            });
+
+            function updateCartUI(response){
+                $('#cartSubtotal').text('$' + response.cartTotal.toFixed(2));
+
+                response.items?.forEach(function(item){
+                    var li = $('.minicart-product[data-productid="' + item.productId + '"]');
+                    li.find('.item-total').text(item.totalPrice.toFixed(2));
+                    li.find('.item-quantity').val(item.quantity);
+                });
+
+                if(response.cartItemCount === 0){
+                    $('.minicart-list').html('<li class="minicart-product"><p>Sepetiniz boş.</p></li>');
+                }
+            }
+
+        });
+    </script>
+}

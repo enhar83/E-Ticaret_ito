@@ -38,6 +38,11 @@
 
 </head>
 
+<form id="af-form" method="post" style="display:none">
+    @Html.AntiForgeryToken()
+</form>
+
+
 <body class="template-color-1">
 
     <div class="main-wrapper">
@@ -108,11 +113,12 @@
                                         <li class="minicart-wrap">
                                             <a href="#miniCart" class="minicart-btn toolbar-btn">
                                                 <div class="minicart-count_area">
-                                                    <span class="item-count">03</span>
+                                                    <span class="item-count">0</span>
                                                     <i class="ion-bag"></i>
                                                 </div>
                                             </a>
                                         </li>
+
                                         <li>
                                             <a href="#searchBar" class="search-btn toolbar-btn">
                                                 <i class="ion-ios-search"></i>
@@ -284,7 +290,7 @@
                                                 <li class="minicart-wrap">
                                                     <a href="#miniCart" class="minicart-btn toolbar-btn">
                                                         <div class="minicart-count_area">
-                                                            <span class="item-count">12</span>
+                                                            <span class="item-count">0</span>
                                                             <i class="ion-bag"></i>
                                                         </div>
                                                     </a>
@@ -308,7 +314,7 @@
                     </div>
                 </div>
             </div>
-            <div class="offcanvas-minicart_wrapper" id="miniCart">
+            @* <div class="offcanvas-minicart_wrapper" id="miniCart">
                 <div class="offcanvas-menu-inner">
                     <a href="#" class="btn-close"><i class="ion-android-close"></i></a>
                     <div class="minicart-content">
@@ -371,7 +377,37 @@
                         <a href="checkout.html" class="kenne-btn kenne-btn_fullwidth">Checkout</a>
                     </div>
                 </div>
+            </div> *@
+
+            <!-- Minicart Panel -->
+            <div class="offcanvas-minicart_wrapper" id="miniCart">
+                <div class="offcanvas-menu-inner">
+                    <a href="#" class="btn-close"><i class="ion-android-close"></i></a>
+                    <div class="minicart-content">
+                        <div class="minicart-heading">
+                            <h4>Alışveriş Sepeti</h4>
+                        </div>
+                        <ul class="minicart-list" id="minicartItems">
+                            <!-- JS ile session’dan gelen ürünler buraya eklenecek -->
+                            <li class="minicart-product">
+                                <p>Sepetinizde ürün bulunmuyor.</p>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="minicart-item_total">
+                        <span>Sepet Toplamı</span>
+                        <span class="ammount" id="minicartTotal">$0.00</span>
+                    </div>
+                    <div class="minicart-btn_area">
+                        <a href="/Cart/Index" class="kenne-btn kenne-btn_fullwidth">Sepeti İncele</a>
+                    </div>
+                    <div class="minicart-btn_area">
+                        <a href="/Checkout" class="kenne-btn kenne-btn_fullwidth">Checkout</a>
+                    </div>
+                </div>
             </div>
+
+
             <div class="mobile-menu_wrapper" id="mobileMenu">
                 <div class="offcanvas-menu-inner">
                     <div class="container">
@@ -1165,6 +1201,82 @@
     <!-- Main JS -->
     <script src="~/assets/js/main.js"></script>
 
+    <script>
+        const nf = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' });
+
+        function renderMiniCart(data) {
+            const items = data.items || [];
+            let html = '';
+
+            if (items.length === 0) {
+                html = '<li class="minicart-product"><p>Sepetiniz boş.</p></li>';
+            } else {
+                html = items.map(item => `
+                    <li class="minicart-product" data-productid="${item.productId}">
+                        <a class="product-item_remove" href="javascript:void(0)" data-productid="${item.productId}">
+                            <i class="ion-android-close"></i>
+                        </a>
+                        <div class="product-item_img">
+                            <img src="/images/${item.imageUrl}" alt="${item.title}">
+                        </div>
+                        <div class="product-item_content">
+                            <a class="product-item_title" href="/Product/ProductDetails/${item.productId}">${item.title}</a>
+                            <span class="product-item_quantity">${item.quantity} x ${nf.format(item.price)}</span>
+                        </div>
+                    </li>
+                `).join('');
+            }
+
+            $('#minicartItems').html(html);
+            $('#minicartTotal').text(nf.format(data.total || 0));
+            $('.item-count').text(data.cartItemCount || 0);
+        }
+
+        function loadMiniCart() {
+            $.get('/Cart/GetCart', renderMiniCart);
+        }
+
+        $(function () {
+            loadMiniCart();
+
+            // Sepete ekle
+            $(document).on('click', '.add-to-cart-btn', function (e) {
+                e.preventDefault();
+                var productId = $(this).data('productid');
+
+                $.get('/Cart/AddToCart', { productId: productId }, function (res) {
+                    if (res.success) {
+                        loadMiniCart();
+                    } else {
+                        alert(res.message || 'Bir hata oluştu.');
+                    }
+                });
+            });
+
+            // Minicart'tan sil
+            $(document).on('click', '.product-item_remove', function (e) {
+                e.preventDefault();
+                var productId = $(this).data('productid');
+                var token = $('#af-form input[name="__RequestVerificationToken"]').val();
+
+                $.post('/Cart/Remove', { productId: productId, __RequestVerificationToken: token }, function (res) {
+                    if (res.success) {
+                        loadMiniCart();
+                    } else {
+                        alert(res.message || 'Bir hata oluştu.');
+                    }
+                });
+            });
+        });
+    </script>
+
+
+    @RenderSection("Scripts", required: false)
+
 </body>
 
 </html>
+
+
+
+

@@ -5,186 +5,183 @@
 	Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<div class="main-wrapper">
 
-
-
-<body class="template-color-1">
-
-	<div class="main-wrapper">
-
-		<!-- Begin Kenne's Breadcrumb Area -->
-		<div class="breadcrumb-area">
-			<div class="container">
-				<div class="breadcrumb-content">
-					<h2>Grid View</h2>
-					<ul>
-						<li><a href="index.html">Home</a></li>
-						<li class="active">Left Sidebar</li>
-					</ul>
-				</div>
+	<!-- Begin Kenne's Breadcrumb Area -->
+	<div class="breadcrumb-area">
+		<div class="container">
+			<div class="breadcrumb-content">
+				<h2>Grid View</h2>
+				<ul>
+					<li><a href="index.html">Home</a></li>
+					<li class="active">Left Sidebar</li>
+				</ul>
 			</div>
 		</div>
-		<!-- Kenne's Breadcrumb Area End Here -->
-		<!-- Begin Kenne's Content Wrapper Area -->
-		<div class="kenne-content_wrapper">
-			<div class="container">
-				<div class="row">
-					<div class="col-xl-3 col-lg-4 order-2 order-lg-1">
-						<div class="kenne-sidebar-catagories_area">
-							<div class="kenne-sidebar_categories">
-								<div class="kenne-categories_title first-child">
-									<h5>Fiyata göre filtrele</h5>
-								</div>
-								<div class="price-filter" style="padding:5px;">
-									@if (ViewBag.FilteredCount != null)
-									{
-										<p style="margin-bottom:5px; font-size:14px;">@ViewBag.FilteredCount ürün bulundu.</p>
-									}
-									else
-									{
-										<p style="margin-bottom:5px; font-size:14px;">Toplamda @ViewBag.TotalCount ürün var.</p>
-									}
-
-									<form asp-controller="Product" asp-action="FilterPrice" method="get">
-										<div class="price-slider-amount">
-											<div class="label-input" style="margin-bottom:5px;">
-												<label style="font-size:13px;">Min Fiyat:</label>
-												<input type="number" name="minPrice" step="0.01" required style="width:70px; margin-right:5px;" />
-
-												<label style="font-size:13px;">Max Fiyat:</label>
-												<input type="number" name="maxPrice" step="0.01" required style="width:70px; margin-right:5px;" />
-											</div>
-											<div>
-												<button type="submit" class="filter-btn" style="padding:4px 12px; border-radius:20px; background-color:white; color:black; border:1px solid #A0522D; margin-bottom:2px;"
-														onmouseover="this.style.backgroundColor='#A0522D'; this.style.color='white';"
-														onmouseout="this.style.backgroundColor='white'; this.style.color='black';">
-													Filtrele
-												</button>
-												<button type="button" class="filter-btn" style="padding:4px 12px; border-radius:20px; background-color:white; color:black; border:1px solid #A0522D;"
-														onclick="window.location='@Url.Action("Index", "Product")'"
-														onmouseover="this.style.backgroundColor='#A0522D'; this.style.color='white';"
-														onmouseout="this.style.backgroundColor='white'; this.style.color='black';">
-													Temizle
-												</button>
-											</div>
-										</div>
-									</form>
-								</div>
+	</div>
+	<!-- Kenne's Breadcrumb Area End Here -->
+	<!-- Begin Kenne's Content Wrapper Area -->
+	<div class="kenne-content_wrapper">
+		<div class="container">
+			<div class="row">
+				<div class="col-xl-3 col-lg-4 order-2 order-lg-1">
+					<div class="kenne-sidebar-catagories_area">
+						<div class="kenne-sidebar_categories">
+							<div class="kenne-categories_title first-child">
+								<h5>Fiyata göre filtrele</h5>
 							</div>
+							<div class="price-filter" style="padding:5px;">
+								@if (ViewBag.FilteredCount != null)
+								{
+									<p style="margin-bottom:5px; font-size:14px;">@ViewBag.FilteredCount ürün bulundu.</p>
+								}
+								else
+								{
+									<p style="margin-bottom:5px; font-size:14px;">Toplamda @ViewBag.TotalCount ürün var.</p>
+								}
 
-							@await Component.InvokeAsync("CategoryList")
+								<form asp-controller="Product" asp-action="FilterPrice" method="get">
+									<div class="price-slider-amount">
+										<div class="label-input" style="margin-bottom:5px;">
+											<label style="font-size:13px;">Min Fiyat:</label>
+											<input type="number" name="minPrice" step="0.01" required style="width:70px; margin-right:5px;" />
 
-							@await Component.InvokeAsync("LatestProducts")
+											<label style="font-size:13px;">Max Fiyat:</label>
+											<input type="number" name="maxPrice" step="0.01" required style="width:70px; margin-right:5px;" />
+										</div>
+										<div>
+											<button type="submit" class="filter-btn" style="padding:4px 12px; border-radius:20px; background-color:white; color:black; border:1px solid #A0522D; margin-bottom:2px;"
+													onmouseover="this.style.backgroundColor='#A0522D'; this.style.color='white';"
+													onmouseout="this.style.backgroundColor='white'; this.style.color='black';">
+												Filtrele
+											</button>
+											<button type="button" class="filter-btn" style="padding:4px 12px; border-radius:20px; background-color:white; color:black; border:1px solid #A0522D;"
+													onclick="window.location='@Url.Action("Index", "Product")'"
+													onmouseover="this.style.backgroundColor='#A0522D'; this.style.color='white';"
+													onmouseout="this.style.backgroundColor='white'; this.style.color='black';">
+												Temizle
+											</button>
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
 
+						@await Component.InvokeAsync("CategoryList")
+
+						@await Component.InvokeAsync("LatestProducts")
+
+					</div>
+				</div>
+				<div class="col-xl-9 col-lg-8 order-1 order-lg-2">
+					<div class="shop-toolbar">
+						<div class="product-view-mode">
+							<a class="active grid-3" data-target="gridview-3" data-toggle="tooltip" data-placement="top" title="Grid View"><i class="fa fa-th"></i></a>
+							<a class="list" data-target="listview" data-toggle="tooltip" data-placement="top" title="List View"><i class="fa fa-th-list"></i></a>
+						</div>
+						<div class="product-page_count">
+							<p>Showing 1–9 of 40 results)</p>
+						</div>
+						<div class="product-item-selection_area">
+							<div class="product-short">
+								<label class="select-label">Sıralama:</label>
+								<select class="nice-select myniceselect">
+									<option value="1">Normal sıralama</option>
+									<option value="2">A'dan Z'ye</option>
+									<option value="3">Z'den A'ya</option>
+									<option value="4">Fiyat, düşükten yükseğe</option>
+									<option value="5">Fiyat, yüksekten düşüğe</option>
+									<option value="5">Rating (Yüksek)</option>
+									<option value="5">Rating (Düşük)</option>
+								</select>
+
+
+							</div>
 						</div>
 					</div>
-					<div class="col-xl-9 col-lg-8 order-1 order-lg-2">
-						<div class="shop-toolbar">
-							<div class="product-view-mode">
-								<a class="active grid-3" data-target="gridview-3" data-toggle="tooltip" data-placement="top" title="Grid View"><i class="fa fa-th"></i></a>
-								<a class="list" data-target="listview" data-toggle="tooltip" data-placement="top" title="List View"><i class="fa fa-th-list"></i></a>
-							</div>
-							<div class="product-page_count">
-								<p>Showing 1–9 of 40 results)</p>
-							</div>
-							<div class="product-item-selection_area">
-								<div class="product-short">
-									<label class="select-label">Sıralama:</label>
-									<select class="nice-select myniceselect">
-										<option value="1">Normal sıralama</option>
-										<option value="2">A'dan Z'ye</option>
-										<option value="3">Z'den A'ya</option>
-										<option value="4">Fiyat, düşükten yükseğe</option>
-										<option value="5">Fiyat, yüksekten düşüğe</option>
-										<option value="5">Rating (Yüksek)</option>
-										<option value="5">Rating (Düşük)</option>
-									</select>
+					<div class="shop-product-wrap grid gridview-3 row">
+						@foreach (var item in Model)
+						{
+							<div class="col-lg-4 col-md-4 col-sm-6">
+								<div class="product-item">
+									<div class="single-product">
+										<div class="product-img">
+											<a href="/Product/ProductDetails/@item.Id">
+												<img class="primary-img" src="~/images/@item.ImageUrl" alt="@item.Title">
+												<img class="secondary-img" src="~/images/@item.ImageUrl" alt="@item.Title">
+											</a>
+											@if (item.Stock >= 30)
+											{
+												<span class="badge bg-success">Stokta var.</span>
+											}
+											else if (item.Stock > 0)
+											{
+												<span class="badge bg-warning text-dark">Sınırlı sayıda.</span>
+											}
+											else
+											{
+												<span class="badge bg-dark">Stokta kalmadı.</span>
+											}
 
 
-								</div>
-							</div>
-						</div>
-						<div class="shop-product-wrap grid gridview-3 row">
-							@foreach (var item in Model)
-							{
-								<div class="col-lg-4 col-md-4 col-sm-6">
-									<div class="product-item">
-										<div class="single-product">
-											<div class="product-img">
-												<a href="/Product/ProductDetails/@item.Id">
-													<img class="primary-img" src="~/images/@item.ImageUrl" alt="@item.Title">
-													<img class="secondary-img" src="~/images/@item.ImageUrl" alt="@item.Title">
-												</a>
-												@if (item.Stock >= 30)
-												{
-													<span class="badge bg-success">Stokta var.</span>
-												}
-												else if (item.Stock > 0)
-												{
-													<span class="badge bg-warning text-dark">Sınırlı sayıda.</span>
-												}
-												else
-												{
-													<span class="badge bg-dark">Stokta kalmadı.</span>
-												}
+											<div class="add-actions">
+												<ul>
+													<li class="quick-view-btn" data-bs-toggle="modal" data-bs-target="#exampleModalCenter">
+														<a href="javascript:void(0)" title="Hızlı İnceleme"><i class="ion-ios-search"></i></a>
+													</li>
+													<li>
+														<a href="wishlist.html" title="İstek Listesine Ekle"><i class="ion-ios-heart-outline"></i></a>
+													</li>
+													<li>
+														<a href="/Product/Compare/@item.Id" title="Karşılatır"><i class="ion-ios-reload"></i></a>
+													</li>
+													<li>
+														<a href="javascript:void(0);" class="add-to-cart-btn" data-productid="@item.Id" title="Sepete Ekle">
+															<i class="ion-bag"></i>
+														</a>
+													</li>
 
-
-												<div class="add-actions">
+												</ul>
+											</div>
+										</div>
+										<div class="product-content">
+											<div class="product-desc_info">
+												<h3 class="product-name">
+													<a href="/Product/ProductDetails/@item.Id">@item.Title</a>
+												</h3>
+												<div class="price-box">
+													<span class="new-price">@item.Price.ToString("C")</span>
+												</div>
+												<div class="rating-box">
 													<ul>
-														<li class="quick-view-btn" data-bs-toggle="modal" data-bs-target="#exampleModalCenter">
-															<a href="javascript:void(0)" title="Hızlı İnceleme"><i class="ion-ios-search"></i></a>
-														</li>
-														<li>
-															<a href="wishlist.html" title="İstek Listesine Ekle"><i class="ion-ios-heart-outline"></i></a>
-														</li>
-														<li>
-															<a href="/Product/Compare/@item.Id" title="Karşılatır"><i class="ion-ios-reload"></i></a>
-														</li>
-														<li>
-															<a href="/Cart/AddToCart/@item.Id" title="Sepete Ekle"><i class="ion-bag"></i></a>
-														</li>
+														<li><i class="ion-ios-star"></i></li>
+														<li><i class="ion-ios-star"></i></li>
+														<li><i class="ion-ios-star"></i></li>
+														<li class="silver-color"><i class="ion-ios-star-half"></i></li>
+														<li class="silver-color"><i class="ion-ios-star-outline"></i></li>
 													</ul>
 												</div>
 											</div>
-											<div class="product-content">
-												<div class="product-desc_info">
-													<h3 class="product-name">
-														<a href="/Product/ProductDetails/@item.Id">@item.Title</a>
-													</h3>
-													<div class="price-box">
-														<span class="new-price">@item.Price.ToString("C")</span>
-													</div>
-													<div class="rating-box">
-														<ul>
-															<li><i class="ion-ios-star"></i></li>
-															<li><i class="ion-ios-star"></i></li>
-															<li><i class="ion-ios-star"></i></li>
-															<li class="silver-color"><i class="ion-ios-star-half"></i></li>
-															<li class="silver-color"><i class="ion-ios-star-outline"></i></li>
-														</ul>
-													</div>
-												</div>
-											</div>
 										</div>
 									</div>
 								</div>
-							}
-						</div>
+							</div>
+						}
+					</div>
 
-						<div class="row">
-							<div class="col-lg-12">
-								<div class="kenne-paginatoin-area">
-									<div class="row">
-										<div class="col-lg-12">
-											<ul class="kenne-pagination-box primary-color">
-												<li class="active"><a href="javascript:void(0)">1</a></li>
-												<li><a href="javascript:void(0)">2</a></li>
-												<li><a href="javascript:void(0)">3</a></li>
-												<li><a href="javascript:void(0)">4</a></li>
-												<li><a href="javascript:void(0)">5</a></li>
-												<li><a class="Next" href="javascript:void(0)">Next</a></li>
-											</ul>
-										</div>
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="kenne-paginatoin-area">
+								<div class="row">
+									<div class="col-lg-12">
+										<ul class="kenne-pagination-box primary-color">
+											<li class="active"><a href="javascript:void(0)">1</a></li>
+											<li><a href="javascript:void(0)">2</a></li>
+											<li><a href="javascript:void(0)">3</a></li>
+											<li><a href="javascript:void(0)">4</a></li>
+											<li><a href="javascript:void(0)">5</a></li>
+											<li><a class="Next" href="javascript:void(0)">Next</a></li>
+										</ul>
 									</div>
 								</div>
 							</div>
@@ -193,9 +190,10 @@
 				</div>
 			</div>
 		</div>
-		<!-- Kenne's Content Wrapper Area End Here -->
 	</div>
-</body>
+	<!-- Kenne's Content Wrapper Area End Here -->
+</div>
+
 
 <style>
 	.product-img {
@@ -204,7 +202,7 @@
 		overflow: hidden;
 		position: relative;
 	}
-	
+
 		.product-img img.primary-img,
 		.product-img img.secondary-img {
 			width: 100%;
@@ -228,8 +226,37 @@
 
 </style>
 
-
-
-
-
-
+@section Scripts {
+	<script>
+		(function ($) {
+			// JSON endpoint ile minicart'ı güncelle
+			function loadMiniCart() {
+				$.get('/Cart/GetCart', function (data) {
+					var list = '';
+					if (!data || !data.items || data.items.length === 0) {
+						list = '<li class="minicart-product"><p>Sepetinizde ürün bulunmuyor.</p></li>';
+					} else {
+						data.items.forEach(function (item) {
+							list += `
+								<li class="minicart-product" data-productid="${item.productId}">
+									<a class="product-item_remove" href="javascript:void(0)" data-productid="${item.productId}">
+										<i class="ion-android-close"></i>
+									</a>
+									<div class="product-item_img">
+										<img src="/images/${item.imageUrl}" alt="${item.title}">
+									</div>
+									<div class="product-item_content">
+										<a class="product-item_title" href="/Product/ProductDetails/${item.productId}">${item.title}</a>
+										<span class="product-item_quantity">${item.quantity} x $${item.price}</span>
+									</div>
+								</li>`;
+						});
+					}
+					$('#minicartItems').html(list);
+					$('#minicartTotal').text('$' + ((data && data.total) ? data.total : 0).toFixed(2));
+					$('.item-count').text((data && data.cartItemCount) ? data.cartItemCount : 0);
+				});
+			}
+		})(jQuery);
+	</script>
+}

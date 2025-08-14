@@ -62,7 +62,7 @@ namespace Data.Concrete
 
         public T GetFirstOrDefault(Expression<Func<T, bool>> predicate)
         {
-            return _dbSet.FirstOrDefault();
+            return _dbSet.FirstOrDefault(predicate);
         }
 
         public void Remove(Guid id)
