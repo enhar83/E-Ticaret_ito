@@ -1,0 +1,81 @@
+﻿@model Presentation.Models.AccountViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Giriş Yap";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Begin Kenne's Login Register Area -->
+<div class="kenne-login-register_area">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-md-8 col-lg-6 col-xs-12 mx-auto">
+                <form id="loginForm" method="post">
+                    <div class="login-form">
+                        <h4 class="login-title">Giriş Yap</h4>
+                        <div class="row">
+                            <div class="col-md-6 col-12 mb--20">
+                                <label>Kullanıcı Adı*</label>
+                                <input asp-for="UserName" class="form-control" placeholder="Kullanıcı Adı" />
+                                <span asp-validation-for="UserName" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb--20">
+                                <label>Şifre*</label>
+                                <input asp-for="Password" type="password" class="form-control" placeholder="Şifre" />
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+                            
+
+                            <div class="col-12 d-flex justify-content-between align-items-center mt-3">
+                                <button type="submit" class="kenne-register_btn">Giriş Yap</button>
+                                <a asp-action="Register" asp-controller="Account" class="btn btn-link">
+                                    Hesabınız yok mı? Kayıt olun
+                                </a>
+                            </div>
+
+                            <!-- JSON mesajını göstermek için -->
+                            <div class="col-12 mt-3">
+                                <div id="loginMessage"></div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Kenne's Login Register Area End Here -->
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $("#loginForm").submit(function (e) {
+            e.preventDefault(); // default form submit engelleniyor
+
+            $.ajax({
+                url: '@Url.Action("Login", "Account")',
+                type: "POST",
+                data: $(this).serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        $("#loginMessage").html(`<div class="alert alert-success">${response.message}</div>`);
+
+                        setTimeout(function () {
+                            window.location.href = '@Url.Action("Index", "Home")';
+                        }, 2000);
+                    } else {
+                        let errorHtml = "<ul class='alert alert-danger'>";
+                        response.errors.forEach(function (err) {
+                            errorHtml += `<li>${err}</li>`;
+                        });
+                        errorHtml += "</ul>";
+                        $("#loginMessage").html(errorHtml);
+                    }
+                },
+                error: function () {
+                    $("#loginMessage").html(`<div class="alert alert-danger">Bir hata oluştu, lütfen tekrar deneyin.</div>`);
+                }
+            });
+        });
+    </script>
+}

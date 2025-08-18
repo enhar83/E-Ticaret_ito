@@ -1,0 +1,105 @@
+﻿@model Presentation.Models.AccountViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Kayıt Ol";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Begin Kenne's Login Register Area -->
+<div class="kenne-login-register_area">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-md-8 col-lg-6 col-xs-12 mx-auto">
+                <form id="registerForm" method="post">
+                    <div class="login-form">
+                        <h4 class="login-title">Kayıt Ol</h4>
+                        <div class="row">
+                            <div class="col-md-6 col-12 mb--20">
+                                <label>İsim*</label>
+                                <input asp-for="FirstName" class="form-control" placeholder="İsim" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 col-12 mb--20">
+                                <label>Soyisim*</label>
+                                <input asp-for="LastName" class="form-control" placeholder="Soyisim" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-12 mb--20">
+                                <label>Kullanıcı Adı*</label>
+                                <input asp-for="UserName" class="form-control" placeholder="Kullanıcı Adı" />
+                                <span asp-validation-for="UserName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-12 mb--20">
+                                <label>Email Adresi*</label>
+                                <input asp-for="Email" class="form-control" placeholder="Mail Adresi" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-12 mb--20">
+                                <label>Telefon*</label>
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="Telefon" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb--20">
+                                <label>Şifre*</label>
+                                <input asp-for="Password" type="password" class="form-control" placeholder="Şifre" />
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb--20">
+                                <label>Şifre Tekrar*</label>
+                                <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Şifre Tekrar" />
+                                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-12 d-flex justify-content-between align-items-center mt-3">
+                                <button type="submit" class="kenne-register_btn">Kayıt Ol</button>
+                                <a asp-action="Login" asp-controller="Account" class="btn btn-link">
+                                    Hesabınız var mı? Giriş yapın
+                                </a>
+                            </div>
+
+                            <!-- JSON mesajını göstermek için -->
+                            <div class="col-12 mt-3">
+                                <div id="registerMessage"></div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Kenne's Login Register Area End Here -->
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $("#registerForm").submit(function (e) {
+            e.preventDefault(); // default form submit engelleniyor
+
+            $.ajax({
+                url: '@Url.Action("Register", "Account")',
+                type: "POST",
+                data: $(this).serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        $("#registerMessage").html(`<div class="alert alert-success">${response.message}</div>`);
+
+                        // 2 saniye sonra login sayfasına yönlendir
+                        setTimeout(function () {
+                            window.location.href = '@Url.Action("Login", "Account")';
+                        }, 2000);
+                    } else {
+                        let errorHtml = "<ul class='alert alert-danger'>";
+                        response.errors.forEach(function (err) {
+                            errorHtml += `<li>${err}</li>`;
+                        });
+                        errorHtml += "</ul>";
+                        $("#registerMessage").html(errorHtml);
+                    }
+                },
+                error: function () {
+                    $("#registerMessage").html(`<div class="alert alert-danger">Bir hata oluştu, lütfen tekrar deneyin.</div>`);
+                }
+            });
+        });
+    </script>
+}

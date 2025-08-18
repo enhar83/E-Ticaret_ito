@@ -553,26 +553,23 @@
                             Shopify Themes.
                         </p>
                     </div>
-                    <div class="offcanvas-component first-child">
-                        <span class="offcanvas-component_title">Currency</span>
-                        <ul class="offcanvas-component_menu">
-                            <li><a href="javascript:void(0)">EUR</a></li>
-                            <li><a href="javascript:void(0)">GBP</a></li>
-                            <li class="active"><a href="javascript:void(0)">USD</a></li>
-                        </ul>
-                    </div>
+
                     <div class="offcanvas-component">
-                        <span class="offcanvas-component_title">Language</span>
+                        <span class="offcanvas-component_title">Hesabım</span>
                         <ul class="offcanvas-component_menu">
-                            <li class="active"><a href="javascript:void(0)">English</a></li>
-                            <li><a href="javascript:void(0)">French</a></li>
-                        </ul>
-                    </div>
-                    <div class="offcanvas-component">
-                        <span class="offcanvas-component_title">My Account</span>
-                        <ul class="offcanvas-component_menu">
-                            <li><a href="my-account.html">Register</a></li>
-                            <li><a href="login-register.html">Login</a></li>
+                            @if (User?.Identity != null && User.Identity.IsAuthenticated)
+                            {
+                                <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-link nav-link" style="padding:0;">Çıkış Yap</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <li><a href="/Account/Register">Kayıt Ol</a></li>
+                                <li><a href="/Account/Login">Giriş Yap</a></li>
+                            }
+                            
+                            
                         </ul>
                     </div>
                     <div class="offcanvas-inner-social_link">
@@ -751,8 +748,8 @@
                                     </div>
                                     <div class="footer-widgets">
                                         <ul>
-                                            <li><a href="javascript:void(0)">Giriş Yap</a></li>
-                                            <li><a href="javascript:void(0)">Kayıt Ol</a></li>
+                                            <li><a href="/Account/Login">Giriş Yap</a></li>
+                                            <li><a href="/Account/Register">Kayıt Ol</a></li>
                                             <li><a href="javascript:void(0)">Yardım</a></li>
                                             <li><a href="javascript:void(0)">Destek</a></li>
                                         </ul>
