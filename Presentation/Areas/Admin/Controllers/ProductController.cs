@@ -152,7 +152,6 @@ namespace Presentation.Areas.Admin.Controllers
                 product.ImageUrl = fileName;
             }
 
-            _db.Products.Update(product);
             _db.Save();
 
             return Json(new { success = true, message = "Ürün başarıyla güncellendi." });

@@ -80,7 +80,6 @@ namespace Presentation.Areas.Admin.Controllers
             category.UpdatedDate = DateTime.Now;
             category.IsActive = updatedCategory.IsActive;
 
-            _db.Categories.Update(category);
             _db.Save();
             return Json(new {success=true,message="Kategori başarıyla güncellendi."});
         }

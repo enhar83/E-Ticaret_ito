@@ -121,7 +121,6 @@ namespace Presentation.Areas.Admin.Controllers
                 blog.ImageUrl = fileName;
             }
 
-            _db.Blogs.Update(blog);
             _db.Save();
             return Ok();
         }

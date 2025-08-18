@@ -76,7 +76,10 @@ namespace Data.Concrete
 
         public void Update(T entity)
         {
-            _dbSet.Update(entity);
+            _db.Entry(entity).State = EntityState.Modified; //kesinlikle bu şekilde olmalı.
+            //ayrıca controllerda update olarak çağrılmamalı, nedeni ise zaten getfirstorddefault ile alınıyor ve durumu modified olarak ayarlanıyor.
         }
+
     }
 }
+
