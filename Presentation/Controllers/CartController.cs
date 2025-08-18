@@ -92,15 +92,16 @@ namespace Presentation.Controllers
             }
 
             HttpContext.Session.SetObject("Cart", cart);
+
             return Json(new
             {
                 success = true,
                 message = $"{item?.Title ?? "Ürün"} miktarı güncellendi.",
-                cartItemCount = cart.Items.Sum(x => x.Quantity),
-                cartTotal = cart.Items.Sum(x => x.TotalPrice),
+                itemTotal = item?.TotalPrice ?? 0,
+                cartTotal = cart.Items.Sum(x => x.TotalPrice)
             });
-
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -129,7 +130,6 @@ namespace Presentation.Controllers
 
         public IActionResult GetCart()
         {
-            // Session’dan CartViewModel’i al
             var cart = HttpContext.Session.GetObject<CartViewModel>("Cart");
 
             if (cart == null || cart.Items.Count == 0)
@@ -142,7 +142,6 @@ namespace Presentation.Controllers
                 });
             }
 
-            // Minicart için gerekli bilgileri maple
             var items = cart.Items.Select(x => new
             {
                 productId = x.ProductId,

@@ -2,125 +2,184 @@
 @model CartViewModel
 
 @{
-    ViewData["Title"] = "Shopping Cart";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewData["Title"] = "Shopping Cart";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+
+	decimal sepetToplam = Model.Items.Sum(x => x.TotalPrice);
+	decimal kazanilacakPuan = sepetToplam * 0.05m;
 }
 
-<div class="offcanvas-minicart_wrapper" id="miniCart">
-    <div class="offcanvas-menu-inner">
-        <a href="#" class="btn-close"><i class="ion-android-close"></i></a>
-        <div class="minicart-content">
-            <div class="minicart-heading">
-                <h4>Shopping Cart</h4>
-            </div>
-            <ul class="minicart-list">
-                @if (Model != null && Model.Items.Any())
-                {
-                    foreach (var item in Model.Items)
-                    {
-                        <li class="minicart-product">
-                            <a class="product-item_remove" asp-action="RemoveFromCart" asp-route-productId="@item.ProductId">
-                                <i class="ion-android-close"></i>
-                            </a>
-                            <div class="product-item_img">
-                                <img src="~/images/@item.ImageUrl" alt="@item.Title">
-                            </div>
-                            <div class="product-item_content">
-                                <a class="product-item_title" href="/Product/ProductDetails/@item.ProductId">@item.Title</a>
-                                <span class="product-item_quantity">@item.Quantity x $@item.Price.ToString("0.00")</span>
-                            </div>
-                        </li>
-                    }
-                }
-                else
-                {
-                    <li class="minicart-product">
-                        <p>Sepetiniz boş.</p>
-                    </li>
-                }
-            </ul>
-        </div>
-        <div class="minicart-item_total">
-            <span>Sepet Toplamı</span>
-            <span class="ammount" id="cartSubtotal">$@Model?.Items.Sum(x => x.TotalPrice).ToString("0.00")</span>
-        </div>
-        <div class="minicart-btn_area">
-            <a href="/Cart/Index" class="kenne-btn kenne-btn_fullwidth">Minicart</a>
-        </div>
-        <div class="minicart-btn_area">
-            <a href="/Checkout/Index" class="kenne-btn kenne-btn_fullwidth">Checkout</a>
-        </div>
-    </div>
+<div class="main-wrapper">
+	<div class="kenne-cart-area">
+		<div class="container">
+			<div class="row">
+				<div class="col-12">
+					@if (!Model.Items.Any())
+					{
+						<div class="text-center p-5">
+							<h3>Sepetinizde ürün bulunmamaktadır.</h3>
+							<a href="@Url.Action("Index", "Product")" class="button mt-3">
+								Alışverişe Başla
+							</a>
+						</div>
+					}
+					else
+					{
+						<form action="javascript:void(0)">
+							<div class="table-content table-responsive">
+								<table class="table">
+									<thead>
+										<tr>
+											<th>Sil</th>
+											<th>Fotoğraf</th>
+											<th>Ürün</th>
+											<th>Fiyat</th>
+											<th>Adet</th>
+											<th>Toplam</th>
+										</tr>
+									</thead>
+									<tbody>
+										@foreach (var item in Model.Items)
+										{
+											<tr>
+												<td>
+													<a href="javascript:void(0)" class="remove-item" data-productid="@item.ProductId">
+														<i class="fa fa-trash" title="Remove"></i>
+													</a>
+												</td>
+												<td><img src="~/images/@item.ImageUrl" alt="@item.Title" style="width:60px;"></td>
+												<td>@item.Title</td>
+												<td>@item.Price.ToString("C")</td>
+												<td>
+													<div class="cart-plus-minus custom-qty">
+														<div class="dec qtybutton" data-productid="@item.ProductId"><i class="fa fa-angle-down"></i></div>
+														<input class="cart-plus-minus-box" value="@item.Quantity" type="text" readonly data-productid="@item.ProductId">
+														<div class="inc qtybutton" data-productid="@item.ProductId"><i class="fa fa-angle-up"></i></div>
+													</div>
+												</td>
+												<td class="product-subtotal">
+													<span class="amount">@item.TotalPrice.ToString("C")</span>
+												</td>
+											</tr>
+										}
+									</tbody>
+								</table>
+							</div>
+
+							<div class="row mt-3">
+								<div class="col-12">
+									<div class="coupon-all">
+										<div class="coupon">
+											<input id="coupon_code" class="input-text" name="coupon_code" placeholder="Kupon kodu" type="text">
+											<input class="button" name="apply_coupon" value="Kuponu Uygula" type="submit">
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="row mt-4">
+								<div class="col-md-5 ml-auto">
+									<div class="cart-page-total">
+										<h2>Sepet Özeti</h2>
+										<ul>
+											<li>Sepet Toplamı <span id="cartTotal">@sepetToplam.ToString("C")</span></li>
+											<li>Kazanılacak Toplam Puan <span id="puanTotal">@kazanilacakPuan.ToString("C")</span></li>
+											<li>Ödenecek Tutar <span id="odemeTotal">@sepetToplam.ToString("C")</span></li>
+										</ul>
+										<a href="javascript:void(0)">Ödemeye İlerle</a>
+									</div>
+								</div>
+							</div>
+						</form>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
-@Html.AntiForgeryToken()
-
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script>
-        $(document).ready(function(){
+	<style>
+		.custom-qty {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
 
-            // Ürün silme
-            $('.product-item_remove').click(function(e){
-                e.preventDefault();
-                var productId = $(this).data('productid');
+			.custom-qty .cart-plus-minus-box {
+				text-align: center;
+				width: 50px;
+				margin: 0 5px;
+			}
 
-                $.ajax({
-                    url: '/Cart/Remove',
-                    type: 'POST',
-                    data: {
-                        productId: productId,
-                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function(response){
-                        if(response.success){
-                            alert(response.message); 
-                            updateCartUI(response);
-                        } else {
-                            alert(response.message);
-                        }
-                    }
-                });
-            });
+			.custom-qty .qtybutton {
+				cursor: pointer;
+				padding: 5px 10px;
+				border: 1px solid #ddd;
+			}
+	</style>
 
-            // Miktar güncelleme
-            $('.item-quantity').change(function(){
-                var productId = $(this).data('productid');
-                var quantity = $(this).val();
+	<script>
+		// Temanın eklediği click eventleri kapat
+		$(document).off('click', '.inc');
+		$(document).off('click', '.dec');
 
-                $.ajax({
-                    url: '/Cart/UpdateQuantity',
-                    type: 'POST',
-                    data: {
-                        productId: productId,
-                        quantity: quantity,
-                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function(response){
-                        if(response.success){
-                            alert(response.message);
-                            updateCartUI(response);
-                        } else {
-                            alert(response.message);
-                        }
-                    }
-                });
-            });
+		// Ürün silme
+		$(document).on('click', '.remove-item', function (e) {
+			e.preventDefault();
+			var productId = $(this).data('productid');
+			var token = $('#af-form input[name="__RequestVerificationToken"]').val();
 
-            function updateCartUI(response){
-                $('#cartSubtotal').text('$' + response.cartTotal.toFixed(2));
+			$.post('/Cart/Remove', { productId: productId, __RequestVerificationToken: token }, function (res) {
+				if (res.success) {
+					$('a.remove-item[data-productid="' + productId + '"]').closest('tr').remove();
+					updateCartSummary(res.cartTotal);
+				} else {
+					alert(res.message || 'Bir hata oluştu.');
+				}
+			});
+		});
 
-                response.items?.forEach(function(item){
-                    var li = $('.minicart-product[data-productid="' + item.productId + '"]');
-                    li.find('.item-total').text(item.totalPrice.toFixed(2));
-                    li.find('.item-quantity').val(item.quantity);
-                });
+		// Miktar artırma
+		$(document).on('click', '.inc', function () {
+			var input = $(this).siblings('.cart-plus-minus-box');
+			var productId = input.data('productid');
+			var newQty = parseInt(input.val()) + 1;
+			updateCartQuantityAjax(productId, newQty, input);
+		});
 
-                if(response.cartItemCount === 0){
-                    $('.minicart-list').html('<li class="minicart-product"><p>Sepetiniz boş.</p></li>');
-                }
-            }
+		// Miktar azaltma
+		$(document).on('click', '.dec', function () {
+			var input = $(this).siblings('.cart-plus-minus-box');
+			var productId = input.data('productid');
+			var newQty = parseInt(input.val()) - 1;
+			if (newQty > 0) {
+				updateCartQuantityAjax(productId, newQty, input);
+			}
+		});
 
-        });
-    </script>
+		function updateCartQuantityAjax(productId, newQty, input) {
+			var token = $('#af-form input[name="__RequestVerificationToken"]').val();
+
+			$.post('/Cart/UpdateQuantity', { productId: productId, quantity: newQty, __RequestVerificationToken: token }, function (res) {
+				if (res.success) {
+					input.val(newQty);
+					var row = input.closest('tr');
+					var rowTotal = (res.itemTotal).toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' });
+					row.find('.product-subtotal .amount').text(rowTotal);
+					updateCartSummary(res.cartTotal);
+				} else {
+					alert(res.message || 'Bir hata oluştu.');
+				}
+			});
+		}
+
+		function updateCartSummary(cartTotal) {
+			var formattedTotal = cartTotal.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' });
+			$('#cartTotal').text(formattedTotal);
+			$('#odemeTotal').text(formattedTotal);
+			var puan = (cartTotal * 0.05).toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' });
+			$('#puanTotal').text(puan);
+		}
+	</script>
 }

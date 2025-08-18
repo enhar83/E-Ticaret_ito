@@ -61,26 +61,26 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
 
 <script>
-    $(document).ready(function () {
-        var table = $('#categoryTable').DataTable({
+    $(document).ready(function () { // sayfadaki Html yüklendiğinde çalışacak fonksiyon
+        var table = $('#categoryTable').DataTable({ // categoryTable adındaki tableı bul ve DataTable kütüphanesini uygula.
             ajax: {
-                url: "/Admin/Category/GetAll",
-                dataSrc: "data"
+                url: "/Admin/Category/GetAll", //çekilecek verinin controllerı ve action adı
+                dataSrc: "data" //json ile verilerin geldiği alan 
             },
-            columns: [
+            columns: [ //tablonun sütunlarının tanımlandığı kısım
                 {
-                    data: null,
-                    render: function (data, type, row, meta) {
-                        return meta.row + 1;
+                    data: null, //ilk sütun veri kaynağına bağlı değil, sadece satır numarasını gösterecek
+                    render: function (data, type, row, meta) { //render ile satır numarası
+                        return meta.row + 1; //default olarak 0dan başlaığı için +1 ile 1den başlatıyoruz
                     }
                 },
-                { data: "title" },
+                { data: "title" }, //ikinci sütun kategorinin adı
                 {
-                    data: "createdDate",
+					data: "createdDate", //üçüncü sütun oluşturulma tarihi
                     render: function (data) {
-                        if (!data) return "-";
-                        let date = new Date(data);
-                        return date.toLocaleDateString('tr-TR', {
+                        if (!data) return "-"; //eğer tarih yoksa - göster
+                        let date = new Date(data); //tarihi JS Date nesnesine çevir
+                        return date.toLocaleDateString('tr-TR', { //tarihi tr formatında göster
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric',
@@ -90,14 +90,15 @@
                     }
                 },
                 {
-                    data: "isActive",
+                    data: "isActive", //kategorinin aktiflik bilgisi
                     render: function (data) {
-                        return data ? "Aktif" : "Pasif";
+                        return data ? "Aktif" : "Pasif"; //true ise Aktif, false ise Pasif yazacak
                     }
                 },
                 {
                     data: 'id',
                     render: function (id, type, row) {
+                        //her satır sonunda iki buton olacak, sil ve düzenle 
                         return `
                             <button class="btn btn-sm btn-info btn-edit" data-id="${id}">Düzenle</button>
                             <button class="btn btn-sm btn-danger" onclick="deleteCategory('${id}')">Sil</button>`;
@@ -108,11 +109,11 @@
 
         // Yeni ekleme butonu
         $("#btnEkle").click(function () {
-            $("#categoryId").val('');
+            $("#categoryId").val(''); //id alanını ve altındaki title alanını .val('') ile temizler.
             $("#categoryTitle").val('');
-            $("#categoryIsActive").prop('checked', true);
-            $("#modalCategoryTitle").text('Yeni Kategori Ekle');
-            $("#modalCategory").modal("show");
+            $("#categoryIsActive").prop('checked', true); //checkbox'ı otomatik olarak true getirir
+            $("#modalCategoryTitle").text('Yeni Kategori Ekle'); //modal başlığını ayarlar.
+            $("#modalCategory").modal("show"); //modalı açar
         });
 
         // Kaydetme işlemi (Ekleme veya Güncelleme)
