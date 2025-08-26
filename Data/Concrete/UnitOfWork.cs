@@ -8,14 +8,10 @@ using Entity;
 
 namespace Data.Concrete
 {
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork : IUnitOfWork, IDisposable
     {
-      
-
         public IRepository<Product> Products { get; private set; }
-
         public IRepository<Category> Categories { get; private set; }
-
         public IRepository<Blog> Blogs { get; private set; }
         public IRepository<Contact> Contacts { get; private set; }
 
@@ -30,9 +26,14 @@ namespace Data.Concrete
             Contacts = new Repository<Contact>(_db);
 
         }
-        public void Save()
+        public int Save()
         {
-            _db.SaveChanges();
+            return _db.SaveChanges();
+        }
+
+        public void Dispose()
+        {
+            _db.Dispose();
         }
     }
 }

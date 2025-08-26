@@ -547,11 +547,17 @@
                         </a>
                     </div>
                     <div class="short-desc">
-                        <p>
-                            We are a team of designers and developers that create high quality HTML Template &
-                            Woocommerce,
-                            Shopify Themes.
-                        </p>
+                        @if (User?.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <p>
+								Hoşgeldin @User.Identity.Name, alışverişe hazır mısın?
+                            </p>
+                        }
+                        else
+                        {
+                            <p>Sitemize kayıt olup fırsatlardan yararlanmak ister misin?</p>
+                        }
+
                     </div>
 
                     <div class="offcanvas-component">
@@ -559,6 +565,11 @@
                         <ul class="offcanvas-component_menu">
                             @if (User?.Identity != null && User.Identity.IsAuthenticated)
                             {
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <li><a href="/Admin/Default">Admin Panel</a></li>
+                                }
+
                                 <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
                                     <button type="submit" class="btn btn-link nav-link" style="padding:0;">Çıkış Yap</button>
                                 </form>
@@ -1019,76 +1030,7 @@
     <!-- Main JS -->
     <script src="~/assets/js/main.js"></script>
 
-    <script>
-        const nf = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' });
-
-        function renderMiniCart(data) {
-            const items = data.items || [];
-            let html = '';
-
-            if (items.length === 0) {
-                html = '<li class="minicart-product"><p>Sepetiniz boş.</p></li>';
-            } else {
-                html = items.map(item => `
-                    <li class="minicart-product" data-productid="${item.productId}">
-                        <a class="product-item_remove" href="javascript:void(0)" data-productid="${item.productId}">
-                            <i class="ion-android-close"></i>
-                        </a>
-                        <div class="product-item_img">
-                            <img src="/images/${item.imageUrl}" alt="${item.title}">
-                        </div>
-                        <div class="product-item_content">
-                            <a class="product-item_title" href="/Product/ProductDetails/${item.productId}">${item.title}</a>
-                            <span class="product-item_quantity">${item.quantity} x ${nf.format(item.price)}</span>
-                        </div>
-                    </li>
-                `).join('');
-            }
-
-            $('#minicartItems').html(html);
-            $('#minicartTotal').text(nf.format(data.total || 0));
-            $('.item-count').text(data.cartItemCount || 0);
-        }
-
-        function loadMiniCart() {
-            $.get('/Cart/GetCart', renderMiniCart);
-        }
-
-        $(function () {
-            loadMiniCart();
-
-            // Sepete ekle
-            $(document).on('click', '.add-to-cart-btn', function (e) {
-                e.preventDefault();
-                var productId = $(this).data('productid');
-
-                $.get('/Cart/AddToCart', { productId: productId }, function (res) {
-                    if (res.success) {
-                        loadMiniCart();
-                    } else {
-                        alert(res.message || 'Bir hata oluştu.');
-                    }
-                });
-            });
-
-            // Minicart'tan sil
-            $(document).on('click', '.product-item_remove', function (e) {
-                e.preventDefault();
-                var productId = $(this).data('productid');
-                var token = $('#af-form input[name="__RequestVerificationToken"]').val();
-
-                $.post('/Cart/Remove', { productId: productId, __RequestVerificationToken: token }, function (res) {
-                    if (res.success) {
-                        loadMiniCart();
-                    } else {
-                        alert(res.message || 'Bir hata oluştu.');
-                    }
-                });
-            });
-        });
-    </script>
-
-
+    <script src="~/js/site.js"></script>
     @RenderSection("Scripts", required: false)
 
 </body>

@@ -1,0 +1,74 @@
+﻿@model ContactMessageViewModel
+
+<div class="col-lg-6 col-md-12 order-2 order-lg-1">
+	<div class="contact-form-content">
+		<h3 class="contact-page-title">Mesajınızı Bırakın</h3>
+		<div class="contact-form">
+			<form id="contactForm" asp-action="Message" asp-controller="Contact" method="post">
+				<div class="form-group">
+					<label>Ad<span class="required">*</span></label>
+					<input asp-for="Name" class="form-control" />
+					<span asp-validation-for="Name" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<label>Mail Adresi<span class="required">*</span></label>
+					<input asp-for="Mail" class="form-control" />
+					<span asp-validation-for="Mail" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<label>Telefon Numarası<span class="required">*</span></label>
+					<input asp-for="PhoneNumber" class="form-control" />
+					<span asp-validation-for="PhoneNumber" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<label>Konu</label>
+					<select asp-for="Subject" class="form-control">
+						<option value="" disabled selected>Konu Seçiniz</option>
+						<option value="Öneri">Öneri</option>
+						<option value="Talep">Talep</option>
+						<option value="Şikayet">Şikayet</option>
+					</select>
+					<span asp-validation-for="Subject" class="text-danger"></span>
+				</div>
+				<div class="form-group form-group-2">
+					<label>Mesajınız</label>
+					<textarea asp-for="Message" class="form-control"></textarea>
+					<span asp-validation-for="Message" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<button type="submit" class="kenne-contact-form_btn">Gönder</button>
+				</div>
+			</form>
+			<div id="formResult"></div>
+		</div>
+		<p class="form-message"></p>
+	</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<script>
+	$(document).ready(function () {
+		$("#contactForm").submit(function (e) {
+			e.preventDefault(); 
+
+			$.ajax({
+				url: "/Contact/Message",
+				type: "POST",
+				data: $(this).serialize(), 
+				success: function (response) {
+					if (response.success) {
+						$("#formResult").html(`<div class="alert alert-success">${response.message}</div>`);
+						$("#contactForm")[0].reset();
+					} else {
+						$("#formResult").html(`<div class="alert alert-danger">${response.message}</div>`);
+					}
+				},
+				error: function () {
+					$("#formResult").html(`<div class="alert alert-danger">Sunucu hatası, lütfen tekrar deneyin.</div>`);
+				}
+			});
+		});
+	});
+</script>

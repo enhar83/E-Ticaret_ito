@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
-namespace Presentation.Helpers; // Viewde kullanıcaksak bu namespace'in bulunması zorunlu,yoksa import olmaz.
+namespace Presentation.Helpers; // viewde kullanıcaksak bu namespacein bulunması zorunlu,yoksa import olmaz.
 
 public static class SessionExtensions //static class olma nedeni nesne oluşturmadan direkt kullanmak için
 {
@@ -16,7 +16,7 @@ public static class SessionExtensions //static class olma nedeni nesne oluşturm
         var jsonData = session.GetString(key); //sessiondan string veriyi alıyor
         if (jsonData == null) //null kontrolü 
             return default(T);
-        //default() ise T tipinin(her neyse) default değerini döndürür,int için 0,string için null,bool için false
+        //default() ise T tipinin(her neyse) default değerini döndürür
 
         return JsonConvert.DeserializeObject<T>(jsonData); //jsonstringi nesneye çeviriyor
     }
