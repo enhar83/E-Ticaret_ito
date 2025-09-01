@@ -1,5 +1,6 @@
 ﻿using Data.Abstract;
 using Entity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json.Linq;
@@ -7,6 +8,7 @@ using Newtonsoft.Json.Linq;
 namespace Presentation.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin,Employee")]
     public class ProductController : Controller
     {
         private readonly IUnitOfWork _db;

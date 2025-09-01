@@ -1,6 +1,7 @@
 ﻿using AspNetCoreGeneratedDocument;
 using Data.Abstract;
 using Entity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Build.Logging;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -9,6 +10,7 @@ using Microsoft.JSInterop.Implementation;
 namespace Presentation.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin,Employee")]
     public class BlogController : Controller
     {
         private readonly IUnitOfWork _db;

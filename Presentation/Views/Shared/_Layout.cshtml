@@ -565,7 +565,7 @@
                         <ul class="offcanvas-component_menu">
                             @if (User?.Identity != null && User.Identity.IsAuthenticated)
                             {
-                                @if (User.IsInRole("Admin"))
+                                @if (User.IsInRole("Admin") || User.IsInRole("Employee"))
                                 {
                                     <li><a href="/Admin/Default">Admin Panel</a></li>
                                 }
