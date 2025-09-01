@@ -62,7 +62,7 @@ namespace Presentation.Controllers
         {
             var filteredProducts = _db.Products.GetAll()
                 .Where(p => p.Price >= minPrice && p.Price <= maxPrice)
-                .OrderByDescending(p => p.Price)
+              .OrderByDescending(p => p.Price)  
                 .ToList();
 
             ViewBag.FilteredCount = filteredProducts.Count;

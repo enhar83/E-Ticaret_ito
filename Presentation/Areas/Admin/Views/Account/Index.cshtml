@@ -1,8 +1,185 @@
-﻿
-@{
-    ViewData["Title"] = "Index";
+﻿@{
+    ViewData["Title"] = "Kullanıcılar";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h1>Index</h1>
+<h6 class="mb-0 text-uppercase">Kullanıcılar</h6>
+<hr />
+<div class="card">
+    <div class="card-body">
+        <table id="userTable" class="table table-bordered table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Ad</th>
+                    <th>Soyad</th>
+                    <th>Kullanıcı Adı</th>
+                    <th>Telefon</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
 
+<!-- Kullanıcı Düzenle Modal -->
+<div class="modal fade" id="modalUser" tabindex="-1" aria-labelledby="modalUserTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalUserTitle">Kullanıcı Düzenle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="userId" />
+
+                <div class="mb-3">
+                    <label class="form-label">Ad</label>
+                    <input type="text" id="userFirstName" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Soyad</label>
+                    <input type="text" id="userLastName" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Kullanıcı Adı</label>
+                    <input type="text" id="userUserName" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Telefon</label>
+                    <input type="text" id="userPhone" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="userEmail" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Rol</label>
+                    <select id="userRole" class="form-select">
+                        <option value="User">Normal Kullanıcı</option>
+                        <option value="Employee">Çalışan</option>
+                        <option value="Admin">Yönetici</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button id="btnSaveUser" class="btn btn-primary">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gerekli scriptler -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+
+<script>
+    $(function () {
+        var table = $('#userTable').DataTable({
+            ajax: { url: '/Admin/Account/GetAllUsers', dataSrc: 'data' },
+            columns: [
+                { data: null, render: (_, __, ___, meta) => meta.row + 1 },
+                { data: 'name' },
+                { data: 'surname' },
+                { data: 'userName' },
+                { data: 'phone' },
+                { data: 'email' },
+                { data: 'role' },
+                {
+                    data: 'id',
+                    render: function (id) {
+                        return `
+                            <button class="btn btn-sm btn-info btn-edit" data-id="${id}">Düzenle</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteUser('${id}')">Sil</button>
+                        `;
+                    }
+                }
+            ]
+        });
+
+        // Kullanıcı düzenleme modalını aç
+        $(document).on('click', '.btn-edit', function () {
+            var id = $(this).data('id');
+            $.getJSON('/Admin/Account/GetById', { id }, function (res) {
+                if (!res.success) return Swal.fire('Hata!', res.message, 'error');
+                var u = res.data;
+
+                $('#modalUserTitle').text('Kullanıcı Düzenle');
+                $('#userId').val(u.id);
+                $('#userFirstName').val(u.firstName);
+                $('#userLastName').val(u.lastName);
+                $('#userUserName').val(u.userName);
+                $('#userPhone').val(u.phoneNumber);
+                $('#userEmail').val(u.email);
+
+                // mevcut rolü dropdown içinde seçili yap
+                $('#userRole').val(u.role);
+
+                $('#modalUser').modal('show');
+            });
+        });
+
+        // Kullanıcı güncelle + rol değiştir
+        $('#btnSaveUser').click(function () {
+            var data = {
+                Id: $('#userId').val(),
+                Name: $('#userFirstName').val(),
+                Surname: $('#userLastName').val(),
+                UserName: $('#userUserName').val(),
+                Phone: $('#userPhone').val(),
+                Email: $('#userEmail').val(),
+                Role: $('#userRole').val()
+            };
+
+            $.ajax({
+                url: '/Admin/Account/Edit',
+                type: 'POST',
+                data: data
+            })
+            .done(res => {
+                if (res.success) {
+                    // Rol güncelleme
+                    $.post('/Admin/Account/ChangeRole', { id: data.Id, role: data.Role })
+                        .done(() => {
+                            $('#modalUser').modal('hide');
+                            Swal.fire('Başarılı!', 'Kullanıcı güncellendi ve rol atandı.', 'success');
+                            table.ajax.reload();
+                        });
+                } else {
+                    Swal.fire('Hata!', res.message || 'İşlem başarısız.', 'error');
+                }
+            })
+            .fail(xhr => Swal.fire('Hata!', xhr.responseText || 'İşlem başarısız.', 'error'));
+        });
+
+        // Kullanıcı silme
+        window.deleteUser = function (id) {
+            Swal.fire({
+                title: 'Emin misiniz?',
+                text: "Kullanıcıyı silmek istediğinize emin misiniz?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Evet, sil!',
+                cancelButtonText: 'Vazgeç'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    $.post('/Admin/Account/Delete', { id })
+                        .done(res => {
+                            if (res.success) {
+                                Swal.fire('Silindi!', 'Kullanıcı başarıyla silindi.', 'success');
+                                table.ajax.reload();
+                            } else {
+                                Swal.fire('Hata!', res.message || 'Silme başarısız.', 'error');
+                            }
+                        })
+                        .fail(xhr => Swal.fire('Hata!', xhr.responseText || 'Silme başarısız.', 'error'));
+                }
+            });
+        };
+    });
+</script>

@@ -63,8 +63,6 @@ namespace Presentation.Controllers
 
             HttpContext.Session.SetObject("Cart", cart); //cartviewmodeli jsona çevirip sessiona koyar.(serialize)
 
-            Console.WriteLine($"Eklendi: {product.Title} - {product.Id}");
-
             return Json(new
             {
                 success = true,
