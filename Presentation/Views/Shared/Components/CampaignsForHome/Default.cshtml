@@ -4,15 +4,16 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
-                <div class="section-title">
+                <div class="section-title d-flex justify-content-between align-items-center">
                     <h3>Aktif Kampanyalar</h3>
                     <div class="campaign-arrow"></div>
                 </div>
             </div>
+
             <div class="col-lg-12">
                 <div class="kenne-element-carousel campaign-slider slider-nav"
                      data-slick-options='{
-                        "slidesToShow": 3,
+                        "slidesToShow": 4,
                         "slidesToScroll": 1,
                         "infinite": false,
                         "arrows": true,
@@ -22,7 +23,7 @@
                         "appendArrows": ".campaign-arrow"
                      }'
                      data-slick-responsive='[
-                        {"breakpoint":992, "settings": {"slidesToShow": 2}},
+                        {"breakpoint":992, "settings": {"slidesToShow": 3}},
                         {"breakpoint":768, "settings": {"slidesToShow": 2}},
                         {"breakpoint":575, "settings": {"slidesToShow": 1}}
                      ]'>
@@ -33,25 +34,29 @@
                             <div class="single-product">
                                 <div class="product-img">
                                     <a href="/Campaign/CampaignDetails/@item.Id">
-                                        <img class="primary-img" src="~/images/@item.ImageUrl" alt="@item.Title" style="height:220px; object-fit:cover;" />
+                                        <img class="primary-img" src="~/images/@item.ImageUrl" alt="@item.Title"
+                                             style="height:220px;object-fit:cover;" />
                                     </a>
+                                    <span class="sticker-2 bg-success text-white px-2 py-1"
+                                          style="font-size: 12px; border-radius:3px;">
+                                        Aktif
+                                    </span>
+                                </div>
+                                <div class="product-content text-center">
+                                    <div class="product-desc_info">
+                                        <h3 class="product-name">
+                                            <a href="/Campaign/CampaignDetails/@item.Id">@item.Title</a>
+                                        </h3>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     }
                 </div>
             </div>
+            <div class="col-lg-12 text-end mt-3">
+                <a href="/Campaign/Index" class="btn btn-sm kenne-btn">Tüm Kampanyalar</a>
+            </div>
         </div>
     </div>
 </div>
-
-<style>
-    .campaign-slider .slick-prev {
-        left: -40px; 
-    }
-
-    .campaign-slider .slick-next {
-        right: -40px;
-    }
-
-</style>
