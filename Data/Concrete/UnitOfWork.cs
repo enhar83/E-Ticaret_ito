@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Data.Abstract;
 using Entity;
-using Entity.ProductDetails;
 
 namespace Data.Concrete
 {

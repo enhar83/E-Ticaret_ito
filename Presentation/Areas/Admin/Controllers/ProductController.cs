@@ -18,7 +18,6 @@ namespace Presentation.Areas.Admin.Controllers
             _db = db;
         }
 
-
         private static readonly string[] AllowedExt = { ".jpg", ".jpeg", ".png", ".webp", ".avif" };
         private static readonly string[] AllowedMime = { "image/jpeg", "image/png", "image/webp", "image/avif" };
         private const long MaxUploadBytes = 10 * 1024 * 1024;

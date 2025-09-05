@@ -1,0 +1,197 @@
+﻿@{
+    ViewData["Title"] = "Kampanyalar";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h6 class="mb-0 text-uppercase">Kampanyalar</h6>
+<hr />
+<div class="card">
+    <div class="card-header text-white bg-primary">
+        <a href="#" id="btnEkleCampaign" class="btn btn-light">Yeni Kampanya Ekle</a>
+    </div>
+    <div class="card-body">
+        <table id="campaignTable" class="table table-bordered table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Kampanya Adı</th>
+                    <th>Açıklama</th>
+                    <th>Fotoğraf</th>
+                    <th>Oluşturma Tarihi</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCampaign" tabindex="-1" aria-labelledby="modalCampaignTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCampaignTitle">Yeni Kampanya Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="campaignId" />
+
+                <div class="mb-3">
+                    <label class="form-label">Kampanya Adı</label>
+                    <input type="text" id="campaignTitle" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Açıklama</label>
+                    <textarea id="campaignDescription" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Fotoğraf</label>
+                    <input type="file" id="campaignImageFile" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
+                    <div class="mt-2">
+                        <img id="currentCampaignImage" src="" width="80" height="80" style="object-fit:cover; display:none;" />
+                    </div>
+                </div>
+                <div class="form-check mb-3">
+                    <input type="checkbox" id="campaignIsActive" class="form-check-input" checked />
+                    <label class="form-check-label" for="campaignIsActive">Aktif</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button id="btnSaveCampaign" class="btn btn-primary">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+
+
+<script>
+    $(function () {
+        var table = $('#campaignTable').DataTable({
+            ajax: { url: '/Admin/Campaign/GetAll', dataSrc: 'data' },
+            columns: [
+                { data: null, render: (_, __, ___, meta) => meta.row + 1 },
+                { data: 'title' },
+                { data: 'description' },
+                {
+                    data: 'imageUrl',
+                    render: d => d
+                        ? `<img src="/images/${d}" style="width:60px;height:60px;object-fit:cover;" />`
+                        : '—'
+                },
+                {
+                    data: 'createdDate',
+                    render: d => new Date(d).toLocaleString('tr-TR', {
+                        year: 'numeric', month: 'long', day: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                    })
+                },
+                { data: 'isActive', render: d => d ? 'Aktif' : 'Pasif' },
+                {
+                    data: 'id',
+                    render: id => `
+                        <button class="btn btn-sm btn-info btn-edit" data-id="${id}">Düzenle</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteCampaign('${id}')">Sil</button>`
+                }
+            ]
+        });
+
+        $('#btnEkleCampaign').click(() => {
+            $('#modalCampaignTitle').text('Yeni Kampanya Ekle');
+            $('#campaignId').val('');
+            $('#campaignTitle,#campaignDescription').val('');
+            $('#campaignIsActive').prop('checked', true);
+            $('#campaignImageFile').val('');
+            $('#currentCampaignImage').hide();
+            $('#modalCampaign').modal('show');
+        });
+
+        $(document).on('click', '.btn-edit', function () {
+            var id = $(this).data('id');
+            $.getJSON('/Admin/Campaign/GetById', { id }, function (res) {
+                if (!res.success) return Swal.fire('Hata!', res.message, 'error');
+                var c = res.data;
+                $('#modalCampaignTitle').text('Kampanya Düzenle');
+                $('#campaignId').val(c.id);
+                $('#campaignTitle').val(c.title);
+                $('#campaignDescription').val(c.description);
+                $('#campaignIsActive').prop('checked', c.isActive);
+                if (c.imageUrl) {
+                    $('#currentCampaignImage').attr('src', '/images/' + c.imageUrl).show();
+                } else {
+                    $('#currentCampaignImage').hide();
+                }
+                $('#campaignImageFile').val('');
+                $('#modalCampaign').modal('show');
+            });
+        });
+
+        $('#btnSaveCampaign').click(() => {
+            var title = $('#campaignTitle').val().trim(),
+                description = $('#campaignDescription').val().trim(),
+                isActive = $('#campaignIsActive').is(':checked'),
+                imgFile = $('#campaignImageFile')[0].files[0],
+                id = $('#campaignId').val(),
+                isEdit = !!id;
+
+            if (!title || (!isEdit && !imgFile)) {
+                var missing = [];
+                if (!title) missing.push('Kampanya Adı');
+                if (!isEdit && !imgFile) missing.push('Fotoğraf');
+                return Swal.fire('Uyarı!', missing.join(', ') + ' zorunlu.', 'warning');
+            }
+
+            var fd = new FormData();
+            if (id) fd.append('Id', id);
+            fd.append('Title', title);
+            fd.append('Description', description);
+            fd.append('IsActive', isActive);
+            if (imgFile) fd.append('imageFile', imgFile);
+
+            var url = isEdit ? '/Admin/Campaign/Edit' : '/Admin/Campaign/Add';
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: fd,
+                contentType: false,
+                processData: false
+            })
+            .done(res => {
+                if (res.success !== false) {
+                    $('#modalCampaign').modal('hide');
+                    Swal.fire('Başarılı!', isEdit ? 'Kampanya güncellendi.' : 'Kampanya eklendi.', 'success');
+                    table.ajax.reload();
+                } else {
+                    Swal.fire('Hata!', res.message || 'İşlem başarısız.', 'error');
+                }
+            })
+            .fail(xhr => Swal.fire('Hata!', xhr.responseText || 'İşlem başarısız.', 'error'));
+        });
+
+        window.deleteCampaign = function (id) {
+            Swal.fire({
+                title: 'Emin misiniz?',
+                text: "Silmek istediğinize emin misiniz?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Evet, sil!',
+                cancelButtonText: 'Vazgeç'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    $.post('/Admin/Campaign/Delete', { id })
+                        .done(() => {
+                            Swal.fire('Silindi!', 'Başarıyla silindi.', 'success');
+                            table.ajax.reload();
+                        })
+                        .fail(xhr => Swal.fire('Hata!', xhr.responseText || 'Silme başarısız.', 'error'));
+                }
+            });
+        };
+    });
+</script>
