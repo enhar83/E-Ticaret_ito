@@ -1,0 +1,57 @@
+﻿@model List<Entity.Campaign>
+
+<div class="product-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="section-title">
+                    <h3>Aktif Kampanyalar</h3>
+                    <div class="campaign-arrow"></div>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="kenne-element-carousel campaign-slider slider-nav"
+                     data-slick-options='{
+                        "slidesToShow": 3,
+                        "slidesToScroll": 1,
+                        "infinite": false,
+                        "arrows": true,
+                        "dots": false,
+                        "autoplay": false,
+                        "spaceBetween": 30,
+                        "appendArrows": ".campaign-arrow"
+                     }'
+                     data-slick-responsive='[
+                        {"breakpoint":992, "settings": {"slidesToShow": 2}},
+                        {"breakpoint":768, "settings": {"slidesToShow": 2}},
+                        {"breakpoint":575, "settings": {"slidesToShow": 1}}
+                     ]'>
+
+                    @foreach (var item in Model)
+                    {
+                        <div class="product-item">
+                            <div class="single-product">
+                                <div class="product-img">
+                                    <a href="/Campaign/CampaignDetails/@item.Id">
+                                        <img class="primary-img" src="~/images/@item.ImageUrl" alt="@item.Title" style="height:220px; object-fit:cover;" />
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .campaign-slider .slick-prev {
+        left: -40px; 
+    }
+
+    .campaign-slider .slick-next {
+        right: -40px;
+    }
+
+</style>
