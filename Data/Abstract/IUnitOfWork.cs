@@ -13,6 +13,7 @@ namespace Data.Abstract
         IRepository<Category> Categories { get; }
         IRepository<Blog> Blogs { get; }
         IRepository<Contact> Contacts { get; }
+        IRepository<Campaign> Campaigns { get; }
         int Save(); //int olarak olması daha iyi çünkü SaveChanges() metodu int döner ve bu değişikliklerin sayısını verir.
     }
 }

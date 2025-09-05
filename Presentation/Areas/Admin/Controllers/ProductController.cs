@@ -18,6 +18,29 @@ namespace Presentation.Areas.Admin.Controllers
             _db = db;
         }
 
+
+        private static readonly string[] AllowedExt = { ".jpg", ".jpeg", ".png", ".webp", ".avif" };
+        private static readonly string[] AllowedMime = { "image/jpeg", "image/png", "image/webp", "image/avif" };
+        private const long MaxUploadBytes = 10 * 1024 * 1024;
+
+        private string ValidateImageFiles(params IFormFile[] files)
+        {
+            foreach (var f in files)
+            {
+                if (f == null || f.Length == 0) continue;
+
+                var ext = Path.GetExtension(f.FileName).ToLowerInvariant();
+                var mime = (f.ContentType ?? "").ToLowerInvariant();
+
+                if (f.Length > MaxUploadBytes)
+                    return "Dosya boyutu 10MB'ı aşamaz.";
+
+                if (!AllowedExt.Contains(ext) || !AllowedMime.Contains(mime))
+                    return "Sadece JPG, PNG veya WebP (opsiyonel AVIF) yükleyebilirsiniz.";
+            }
+            return null;
+        }
+
         public IActionResult Index()
         {
             return View();

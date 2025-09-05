@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Data.Abstract;
 using Entity;
+using Entity.ProductDetails;
 
 namespace Data.Concrete
 {
@@ -14,6 +15,7 @@ namespace Data.Concrete
         public IRepository<Category> Categories { get; private set; }
         public IRepository<Blog> Blogs { get; private set; }
         public IRepository<Contact> Contacts { get; private set; }
+        public IRepository<Campaign> Campaigns { get; private set; }
 
         private readonly AppDbContext _db;
         public UnitOfWork( AppDbContext db)
@@ -24,7 +26,7 @@ namespace Data.Concrete
             Products = new Repository<Product>(_db);
             Categories = new Repository<Category>(_db);
             Contacts = new Repository<Contact>(_db);
-
+            Campaigns = new Repository<Campaign>(_db);
         }
         public int Save()
         {

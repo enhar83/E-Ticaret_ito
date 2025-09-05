@@ -15,6 +15,5 @@ namespace Entity
         public string? ProductCode { get; set; }
         public Guid CategoryId { get; set; }
         public required virtual Category Category { get; set; }
-
     }
 }
