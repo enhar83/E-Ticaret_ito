@@ -15,6 +15,7 @@ namespace Data.Concrete
         public IRepository<Blog> Blogs { get; private set; }
         public IRepository<Contact> Contacts { get; private set; }
         public IRepository<Campaign> Campaigns { get; private set; }
+        public IRepository<Discount> Discounts { get; private set; }
 
         private readonly AppDbContext _db;
         public UnitOfWork( AppDbContext db)
@@ -26,6 +27,7 @@ namespace Data.Concrete
             Categories = new Repository<Category>(_db);
             Contacts = new Repository<Contact>(_db);
             Campaigns = new Repository<Campaign>(_db);
+            Discounts = new Repository<Discount>(_db);
         }
         public int Save()
         {

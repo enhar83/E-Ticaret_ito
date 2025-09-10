@@ -21,5 +21,6 @@ namespace Data
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Campaign> Campaigns { get; set; }
+        public DbSet<Discount> Discounts { get; set; }
     }
 }

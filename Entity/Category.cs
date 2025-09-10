@@ -10,5 +10,6 @@ namespace Entity
     public class Category:BaseModel
     {
         public ICollection<Product> Products { get; set; } = new HashSet<Product>();
+        public ICollection<Discount> Discounts { get; set; } = new HashSet<Discount>();
     }
 }

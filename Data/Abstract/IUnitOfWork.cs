@@ -14,6 +14,7 @@ namespace Data.Abstract
         IRepository<Blog> Blogs { get; }
         IRepository<Contact> Contacts { get; }
         IRepository<Campaign> Campaigns { get; }
+        IRepository<Discount> Discounts { get; }
         int Save(); //int olarak olması daha iyi çünkü SaveChanges() metodu int döner ve bu değişikliklerin sayısını verir.
     }
 }
