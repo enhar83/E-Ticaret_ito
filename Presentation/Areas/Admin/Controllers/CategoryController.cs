@@ -62,7 +62,7 @@ namespace Presentation.Areas.Admin.Controllers
             return Ok();
         }
         [HttpGet]
-        public IActionResult Edit(Guid id)
+        public IActionResult Edit()
         {
             return View();
         }

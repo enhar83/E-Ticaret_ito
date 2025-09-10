@@ -60,7 +60,7 @@ namespace Presentation.Areas.Admin.Controllers
                     p.ProductCode,
                     Category = p.Category.Title,
                     p.IsActive,
-                    CreatedDate = p.CreatedDate.ToString("yy-MM-dd"),
+                    CreatedDate = p.CreatedDate
                 });
             return Json(new {data=result});
         }

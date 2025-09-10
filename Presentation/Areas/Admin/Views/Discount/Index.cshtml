@@ -1,0 +1,228 @@
+﻿@{
+    ViewData["Title"] = "İndirimler";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h6 class="mb-0 text-uppercase">İndirimler</h6>
+<hr />
+<div class="card">
+    <div class="card-header text-white bg-primary">
+        <a href="#" id="btnEkleDiscount" class="btn btn-light">Yeni İndirim Ekle</a>
+    </div>
+    <div class="card-body">
+        <table id="discountTable" class="table table-bordered table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Başlık</th>
+                    <th>Kategori</th>
+                    <th>İndirim Oranı</th>
+                    <th>İndirim Tutarı</th>
+                    <th>Durum</th>
+                    <th>Oluşturma Tarihi</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+@* Ekle / Düzenle Modal *@
+<div class="modal fade" id="modalDiscount" tabindex="-1" aria-labelledby="modalDiscountTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalDiscountTitle">Yeni İndirim Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="discountId" />
+
+                <div class="mb-3">
+                    <label class="form-label">Başlık</label>
+                    <input type="text" id="discountTitle" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">İndirim Oranı (%)</label>
+                    <input type="number" id="discountRate" class="form-control" step="0.01" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">İndirim Tutarı (₺)</label>
+                    <input type="number" id="discountAmount" class="form-control" step="0.01" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Kategori</label>
+                    <select id="discountCategory" class="form-select"></select>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input type="checkbox" id="discountIsActive" class="form-check-input" checked />
+                    <label class="form-check-label" for="discountIsActive">Aktif</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button id="btnSaveDiscount" class="btn btn-primary">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- DataTables -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+
+<script>
+    $(function () {
+        var table = $('#discountTable').DataTable({
+            ajax: { url: '/Admin/Discount/GetAll', dataSrc: 'data' },
+            columns: [
+                { data: null, render: (_, __, ___, meta) => meta.row + 1 },
+                { data: 'title' },
+                { data: 'category' },
+                { data: 'discountRate', render: d => d ? d + " %" : "—" },
+                { data: 'discountAmount', render: d => d ? d.toLocaleString("tr-TR") + " ₺" : "—" },
+                { data: 'isActive', render: d => d ? 'Aktif' : 'Pasif' },
+                {
+                    data: 'createdDate',
+                    render: function (d) {
+                        return new Date(d).toLocaleString('tr-TR', {
+                            year: 'numeric', month: 'long', day: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
+                        });
+                    }
+                },
+                {
+                    data: 'id',
+                    render: function (id) {
+                        return `
+                            <button class="btn btn-sm btn-info btn-edit" data-id="${id}">Düzenle</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteDiscount('${id}')">Sil</button>
+                        `;
+                    }
+                }
+            ]
+        });
+
+        function loadCategories(selectedId) {
+            $.get('/Admin/Discount/GetAllCategories', function (cats) {
+                var $sel = $('#discountCategory').empty()
+                    .append('<option value="">Kategori seçiniz</option>');
+                cats.forEach(function (c) {
+                    $sel.append(`<option value="${c.id}" ${c.id === selectedId ? 'selected' : ''}>${c.title}</option>`);
+                });
+            });
+        }
+
+        $('#btnEkleDiscount').click(() => {
+            $('#modalDiscountTitle').text('Yeni İndirim Ekle');
+            $('#discountId').val('');
+            $('#discountTitle,#discountRate,#discountAmount').val('');
+            $('#discountIsActive').prop('checked', true);
+            loadCategories();
+            $('#modalDiscount').modal('show');
+        });
+
+        $(document).on('click', '.btn-edit', function () {
+            var id = $(this).data('id');
+            $.getJSON('/Admin/Discount/GetById', { id }, function (res) {
+                if (!res.success) return Swal.fire('Hata!', res.message, 'error');
+                var d = res.data;
+                $('#modalDiscountTitle').text('İndirim Düzenle');
+                $('#discountId').val(d.id);
+                $('#discountTitle').val(d.title);
+                $('#discountRate').val(d.discountRate);
+                $('#discountAmount').val(d.discountAmount);
+                $('#discountIsActive').prop('checked', d.isActive);
+                loadCategories(d.categoryId);
+                $('#modalDiscount').modal('show');
+            });
+        });
+
+        $('#btnSaveDiscount').click(() => {
+            var title = $('#discountTitle').val().trim(),
+                rate = $('#discountRate').val().trim(),
+                amount = $('#discountAmount').val().trim(),
+                category = $('#discountCategory').val(),
+                isEdit = !!$('#discountId').val();
+
+            // ---- Validasyon ----
+            if (!title) {
+                return Swal.fire('Uyarı!', 'Başlık alanı zorunludur.', 'warning');
+            }
+
+            if (!rate && !amount) {
+                return Swal.fire('Uyarı!', 'İndirim oranı veya tutarından en az birini girmelisiniz.', 'warning');
+            }
+
+            if (rate && amount) {
+                return Swal.fire('Uyarı!', 'İndirim oranı ve tutarı aynı anda girilemez. Sadece birini seçin.', 'warning');
+            }
+
+            if (rate) {
+                var rateNum = parseFloat(rate);
+                if (isNaN(rateNum) || rateNum < 0 || rateNum > 100) {
+                    return Swal.fire('Uyarı!', 'İndirim oranı 0 ile 100 arasında olmalıdır.', 'warning');
+                }
+            }
+
+            if (!category) {
+                return Swal.fire('Uyarı!', 'Kategori seçmelisiniz.', 'warning');
+            }
+
+            // ---- Form Data ----
+            var fd = new FormData();
+            var id = $('#discountId').val();
+            if (id) fd.append('Id', id);
+            fd.append('Title', title);
+            fd.append('DiscountRate', rate);
+            fd.append('DiscountAmount', amount);
+            fd.append('CategoryId', category);
+            fd.append('IsActive', $('#discountIsActive').is(':checked'));
+
+            var url = id ? '/Admin/Discount/Edit' : '/Admin/Discount/Add';
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: fd,
+                contentType: false,
+                processData: false
+            })
+            .done(res => {
+                var ok = id ? res.success : true;
+                if (ok) {
+                    $('#modalDiscount').modal('hide');
+                    Swal.fire('Başarılı!', id ? 'İndirim güncellendi.' : 'İndirim eklendi.', 'success');
+                    table.ajax.reload();
+                } else {
+                    Swal.fire('Hata!', res.message || 'İşlem başarısız.', 'error');
+                }
+            })
+            .fail(xhr => Swal.fire('Hata!', xhr.responseText || 'İşlem başarısız.', 'error'));
+        });
+
+        window.deleteDiscount = function (id) {
+            Swal.fire({
+                title: 'Emin misiniz?',
+                text: "Silmek istediğinize emin misiniz?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Evet, sil!',
+                cancelButtonText: 'Vazgeç'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    $.post('/Admin/Discount/Delete', { id })
+                        .done(() => {
+                            Swal.fire('Silindi!', 'Başarıyla silindi.', 'success');
+                            table.ajax.reload();
+                        })
+                        .fail(xhr => Swal.fire('Hata!', xhr.responseText || 'Silme başarısız.', 'error'));
+                }
+            });
+        };
+    });
+</script>
