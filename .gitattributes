@@ -61,3 +61,14 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+
+###############################################################################
+# GitHub Linguist - Language detection fix
+###############################################################################
+*.js linguist-vendored
+*.css linguist-vendored
+*.html linguist-vendored
+*.scss linguist-vendored
+
+wwwroot/lib/** linguist-vendored
+
