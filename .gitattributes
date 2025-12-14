@@ -63,12 +63,15 @@
 #*.RTF   diff=astextplain
 
 ###############################################################################
-# GitHub Linguist - Language detection fix
+# GitHub Linguist - Backend language priority
 ###############################################################################
 *.js linguist-vendored
 *.css linguist-vendored
 *.html linguist-vendored
 *.scss linguist-vendored
+*.cshtml linguist-vendored
 
-wwwroot/lib/** linguist-vendored
+Views/** linguist-vendored
+wwwroot/** linguist-vendored
+
 
